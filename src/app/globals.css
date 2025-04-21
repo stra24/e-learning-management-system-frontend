@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-darkGray: #333132
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,6 +22,6 @@
 
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--color-darkGray);
   font-family: Arial, Helvetica, sans-serif;
 }
