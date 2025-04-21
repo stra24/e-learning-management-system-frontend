@@ -30,13 +30,13 @@ export default function Home() {
 
 			{/* お知らせリスト */}
 			<div className="px-6 py-4">
-				<div className="border-b border-gray-200 p-2 hover:bg-gray-100  hover:cursor-pointer">
+				<div className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer">
 					<p className="text-gray-600 text-md">2025年1月1日　大事なお知らせ</p>
 				</div>
-				<div className="border-b border-gray-200 p-2 hover:bg-gray-100  hover:cursor-pointer">
+				<div className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer">
 					<p className="text-gray-600 text-md">2025年1月2日　大事なお知らせ</p>
 				</div>
-				<div className="border-gray-200 p-2 hover:bg-gray-100  hover:cursor-pointer">
+				<div className="border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer">
 					<p className="text-gray-600 text-md">2025年1月3日　大事なお知らせ</p>
 				</div>
 			</div>
