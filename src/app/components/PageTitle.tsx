@@ -2,10 +2,6 @@ type PageTitleProps = {
 	title: string;
   };
   
-export default function PageTitle({ title }: PageTitleProps) {
-	return (
-		<div className="w-full h-[110px] flex items-center justify-center">
-			<h1 className="text-2xl font-bold">{title}</h1>
-		</div>
-	);
-}
+  export default function PageTitle({ title }: PageTitleProps) {
+	return <h1 className="w-full flex items-center justify-center text-3xl font-bold p-10">{title}</h1>;
+  }
