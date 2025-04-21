@@ -84,7 +84,7 @@ export default function LoginForm() {
           ログイン
         </button>
 
-		<div className="text-base my-5 text-center text-blue-600 hover:underline hover:text-blue-900">
+		<div className="text-base mt-5 text-center text-blue-600 hover:underline hover:text-blue-900">
 			<Link href="/password">パスワードをお忘れの方はこちら</Link>
 		</div>
       </form>
