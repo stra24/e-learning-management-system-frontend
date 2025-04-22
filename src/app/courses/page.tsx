@@ -1,6 +1,7 @@
 "use client";
-import PageTitle from "@/app/components/PageTitle";
-import CourseCard from "@/app/components/CourseCard";
+import { useRouter } from 'next/navigation';
+import PageTitle from "@/app/components/page-title/PageTitle";
+import CourseCard from "@/app/components/course/CourseCard";
 import Header from "@/app/components/Header";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -8,6 +9,12 @@ import Link from "next/link";
 export default function Home() {
 	const [message, setMessage] = useState("");
 
+	const router = useRouter();
+	const toNewsDetailPage = (event: React.MouseEvent<HTMLDivElement>) => {
+		const newsId = event.currentTarget.id;
+		router.push("/news/" + newsId);
+	};
+	
   useEffect(() => {
     fetch("http://localhost:8080/api/hello")
       .then((res) => res.text())
@@ -17,12 +24,10 @@ export default function Home() {
   return (
     <>
 		<Header />
-		<div className="mt-15">
-			<PageTitle title="Javaエンジニア養成講座"/>
-		</div>
+		<PageTitle title="Javaエンジニア養成講座"/>
 
 		{/* お知らせ欄 */}
-		<div className="border border-gray-300 mx-auto max-w-[1000px] rounded-sm overflow-hidden shadow-md flex flex-col mb-10">
+		<div className="border border-gray-300 mx-auto max-w-[1000px] rounded-sm overflow-hidden shadow-md flex flex-col mb-18">
 			{/* タイトル */}
 			<div className="text-center py-4">
 				<h2 className="text-xl font-semibold">お知らせ</h2>
@@ -30,13 +35,13 @@ export default function Home() {
 
 			{/* お知らせリスト */}
 			<div className="px-6 py-4">
-				<div className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer">
+				<div id="1" className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer" onClick={toNewsDetailPage}>
 					<p className="text-gray-600 text-md">2025年1月1日　大事なお知らせ</p>
 				</div>
-				<div className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer">
+				<div id="2" className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer" onClick={toNewsDetailPage}>
 					<p className="text-gray-600 text-md">2025年1月2日　大事なお知らせ</p>
 				</div>
-				<div className="border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer">
+				<div id="3" className="border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer" onClick={toNewsDetailPage}>
 					<p className="text-gray-600 text-md">2025年1月3日　大事なお知らせ</p>
 				</div>
 			</div>
@@ -57,30 +62,40 @@ export default function Home() {
 				title="Java入門完全攻略あああああああああああああああああああああああああああああああああああああ"
 				progress={65}
 				description="このコースではJavaの基本からオブジェクト指向、例外処理、Stream APIまで学べます。あああああああああああああ"
+				isUser={true}
+				isAdmin={false}
 			/>
 			<CourseCard
 				imageUrl="/sample.png"
 				title="SQL入門完全攻略"
 				progress={65}
 				description="このコースではSQLの基本を学べます。"
+				isUser={true}
+				isAdmin={false}
 			/>
 			<CourseCard
 				imageUrl="/sample.png"
 				title="SQL入門完全攻略"
 				progress={65}
 				description="このコースではSQLの基本を学べます。"
+				isUser={true}
+				isAdmin={false}
 			/>
 			<CourseCard
 				imageUrl="/sample.png"
 				title="SQL入門完全攻略"
 				progress={65}
 				description="このコースではSQLの基本を学べます。"
+				isUser={true}
+				isAdmin={false}
 			/>
 			<CourseCard
 				imageUrl="/sample.png"
 				title="SQL入門完全攻略"
 				progress={65}
 				description="このコースではSQLの基本を学べます。"
+				isUser={true}
+				isAdmin={false}
 			/>
 		</div>
     </>

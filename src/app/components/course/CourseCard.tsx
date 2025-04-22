@@ -6,12 +6,18 @@ type CourseCardProps = {
 	title: string;
 	progress: number; // 0〜100
 	description: string;
+	isUser?: boolean;
+	isAdmin: boolean;
   };
   
-export default function CourseCard({ imageUrl, title, progress, description }: CourseCardProps) {
+export default function CourseCard({ imageUrl, title, progress, description, isUser, isAdmin }: CourseCardProps) {
 	const router = useRouter();
 	const toLessonPage = () => {
-		router.push('/lesson');
+		if (isAdmin) {
+			router.push('/admin/courses/1/lessons/1/edit');
+		} else {
+			router.push('/courses/1/lessons/1');
+		}
 	};
 
 	return (
@@ -34,19 +40,21 @@ export default function CourseCard({ imageUrl, title, progress, description }: C
 					<p className="text-sm text-gray-600 mb-3 line-clamp-3">{description}</p>
 				</div>
 
-				<div>
-					{/* 進捗バー */}
-					<div className="h-1 bg-gray-200 rounded-full mb-1.5">
-						<div
-							className="h-1 bg-blue-600 rounded-full transition-all duration-300"
-							style={{ width: `${progress}%` }}
-						>
+				{isUser && (
+					<div>
+						{/* 進捗バー */}
+						<div className="h-1 bg-gray-200 rounded-full mb-1.5">
+							<div
+								className="h-1 bg-blue-600 rounded-full transition-all duration-300"
+								style={{ width: `${progress}%` }}
+							>
+							</div>
 						</div>
-					</div>
 
-					{/* 進捗率表示 */}
-					<p className="text-sm text-left text-gray-500 mt-1">{progress}% 完了</p>
-				</div>
+						{/* 進捗率表示 */}
+						<p className="text-sm text-left text-gray-500 mt-1">{progress}% 完了</p>
+					</div>
+				)}
 			</div>
 		</div>
 	);

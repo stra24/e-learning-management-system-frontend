@@ -11,9 +11,13 @@ const Header = () => {
 	const router = useRouter();
 
 	const toTopPage = () => {
-		router.push('/');
+		router.push('/courses');
 	};
 	
+	const toMyAccountPage = () => {
+		router.push('/account');
+	};
+
 	useEffect(() => {
 	  const handleClickOutside = (event: MouseEvent) => {
 		if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -35,9 +39,9 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 w-full bg-blue-900 text-white shadow z-50">
-      <div className="flex justify-between items-center py-4 px-3">
+      <div className="flex justify-between items-center h-[60px] px-3">
         {/* 左側：画面タイトル */}
-        <h1 onClick={toTopPage} className="text-xl hover:cursor-pointer">eラーニング管理システム</h1>
+        <h1 onClick={toTopPage} className="text-xl hover:cursor-pointer">Javaエンジニア養成講座</h1>
 
         {/* 右側：ハンバーガーメニュー */}
         <div className="relative" ref={menuRef}>
@@ -51,7 +55,7 @@ const Header = () => {
           {isOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-white text-black rounded shadow-md">
               <ul className="py-2">
-                <li className="p-2 text-md hover:bg-gray-200 cursor-pointer">マイアカウント</li>
+                <li onClick={toMyAccountPage} className="p-2 text-md hover:bg-gray-200 cursor-pointer">マイアカウント</li>
                 <li className="p-2 text-md hover:bg-gray-200 cursor-pointer">ログアウト</li>
               </ul>
             </div>

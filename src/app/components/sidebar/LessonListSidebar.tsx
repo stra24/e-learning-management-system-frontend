@@ -37,7 +37,7 @@ const lessonGroups = [
   },
 ];
 
-export default function Sidebar() {
+export default function LessonListSidebar() {
   const [openGroups, setOpenGroups] = useState(
     lessonGroups.map((group) => group.id) // 初期状態：すべて開いている
   );

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Sidebar from "@/app/components/Sidebar";
-import LessonContent from "@/app/components/LessonContent";
+import LessonListSidebar from "@/app/components/sidebar/LessonListSidebar";
+import LessonDetail from "@/app/components/lesson/LessonDetail";
 import Header from "@/app/components/Header";
 
 export const metadata: Metadata = {
@@ -12,15 +12,15 @@ export default function Home() {
 	return (
 		<div>
 			<Header />
-			<div className="flex mt-15"> {/* 画面全体を高さを使用 */}
+			<div className="flex mt-[60px]">
 				{/* サイドバー部分 */}
 				<div className="w-120 max-h-screen fixed overflow-y-auto border border-r-1 border-gray-300">
-					<Sidebar />
+					<LessonListSidebar />
 				</div>
 
 				{/* メインコンテンツ部分 */}
 				<div className="flex-1 max-h-screen ml-[30rem]">
-					<LessonContent />
+					<LessonDetail />
 				</div>
 			</div>
 		</div>

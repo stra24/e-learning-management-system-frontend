@@ -1,4 +1,4 @@
-export default function LessonContent() {
+export default function LessonDetail() {
 	return (
 	  <div className="flex-1 pt-10 px-10 overflow-y-auto">
 		<div className="h-[80vh] aspect-video mx-auto mb-2">
