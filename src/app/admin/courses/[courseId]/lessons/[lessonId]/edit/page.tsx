@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from "react";
-import Header from "@/app/components/Header";
-import LessonDetailForAdmin from "@/app/components/lesson/LessonDetailForAdmin";
-import LessonListSidebarForAdmin from "@/app/components/sidebar/LessonListSidebarForAdmin";
+import Header from "@/components/Header";
+import LessonDetailForAdmin from "@/components/lesson/LessonDetailForAdmin";
+import LessonListSidebarForAdmin from "@/components/sidebar/LessonListSidebarForAdmin";
 
 export default function Home() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);

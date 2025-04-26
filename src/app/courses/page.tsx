@@ -2,37 +2,30 @@
 import useSWR from 'swr';
 import { fetcherWithJWT } from '@/swr/fetcher';
 import { useRouter } from 'next/navigation';
-import PageTitle from "@/app/components/page-title/PageTitle";
-import CourseCard from "@/app/components/course/CourseCard";
-import Header from "@/app/components/Header";
+import PageTitle from "@/components/page-title/PageTitle";
+import CourseCard from "@/components/course/CourseCard";
+import Header from "@/components/Header";
 import Link from "next/link";
-
-type CourseDto = {
-	id: string;
-	thumbnailUrl: string;
-	title: string;
-	description: string;
-};
-
-type CoursePageDto = {
-	courseDtos: CourseDto[];
-	pageNum: number;
-	pageSize: number;
-	totalSize: number;
-};
+import { CoursePageDto } from '@/types/course';
+import { NewsPageDto } from '@/types/news';
+import { convertDateString } from '@/lib/dateUtil';
 
 export default function Home() {
 	const router = useRouter();
 
-	const { data: courseResponse, error } = useSWR<CoursePageDto>('http://localhost:8080/api/courses', fetcherWithJWT);
+	const { data: findCoursesApiResponse, error: findCoursesApiError } =
+		useSWR<CoursePageDto>('http://localhost:8080/api/courses', fetcherWithJWT);
+
+	const { data: findNewsApiResponse, error: findNewsApiError } =
+		useSWR<NewsPageDto>('http://localhost:8080/api/news', fetcherWithJWT);
 
 	const toNewsDetailPage = (event: React.MouseEvent<HTMLDivElement>) => {
 		const newsId = event.currentTarget.id;
 		router.push("/news/" + newsId);
 	};
 
-	if (error) return <div>エラーが発生しました</div>;
-	if (!courseResponse) return <div>読み込み中...</div>;
+	if (findCoursesApiError || findNewsApiError) return <div>エラーが発生しました</div>;
+	if (!findCoursesApiResponse || !findNewsApiResponse) return <div>読み込み中...</div>;
 
 	return (
 		<>
@@ -45,15 +38,17 @@ export default function Home() {
 					<h2 className="text-xl font-semibold">お知らせ</h2>
 				</div>
 				<div className="px-6 py-4">
-					<div id="1" className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer" onClick={toNewsDetailPage}>
-						<p className="text-gray-600 text-md">2025年1月1日　大事なお知らせ</p>
-					</div>
-					<div id="2" className="border-b border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer" onClick={toNewsDetailPage}>
-						<p className="text-gray-600 text-md">2025年1月2日　大事なお知らせ</p>
-					</div>
-					<div id="3" className="border-gray-200 p-2 hover:bg-gray-100 hover:cursor-pointer" onClick={toNewsDetailPage}>
-						<p className="text-gray-600 text-md">2025年1月3日　大事なお知らせ</p>
-					</div>
+					{findNewsApiResponse.newsDtos.map((news) => (
+						<div
+							key={news.id}
+							id={news.id}
+							className="border-b border-gray-200 p-2 hover:bg-gray-200 flex items-center hover:cursor-pointer"
+							onClick={toNewsDetailPage}
+						>
+							<p className="text-gray-600 text-sm pr-5">{convertDateString(news.createdAt)}</p>
+							<p className="text-gray-600 text-md font-medium">{news.title}</p>
+						</div>
+					))}
 				</div>
 				<div className="flex justify-center mb-6">
 					<Link href="/news" passHref>
@@ -65,7 +60,7 @@ export default function Home() {
 			</div>
 
 			<div className="mx-auto grid grid-cols-3 gap-6 w-fit items-start pb-10">
-				{courseResponse.courseDtos.map((course) => (
+				{findCoursesApiResponse.courseDtos.map((course) => (
 					<CourseCard
 						key={course.id}
 						imageUrl="/sample.png"

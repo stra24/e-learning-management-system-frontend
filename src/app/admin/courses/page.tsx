@@ -1,6 +1,6 @@
-import SidebarForAdmin from "@/app/components/sidebar/SidebarForAdmin";
-import CourseListForAdmin from "@/app/components/course/CourseListForAdmin";
-import Header from "@/app/components/Header";
+import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
+import CourseListForAdmin from "@/components/course/CourseListForAdmin";
+import Header from "@/components/Header";
 
 export default function Home() {
 	return (

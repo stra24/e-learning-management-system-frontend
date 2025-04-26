@@ -1,6 +1,6 @@
-import LessonListSidebar from "@/app/components/sidebar/LessonListSidebar";
-import LessonDetail from "@/app/components/lesson/LessonDetail";
-import Header from "@/app/components/Header";
+import LessonListSidebar from "@/components/sidebar/LessonListSidebar";
+import LessonDetail from "@/components/lesson/LessonDetail";
+import Header from "@/components/Header";
 
 export default function Home() {
 	return (

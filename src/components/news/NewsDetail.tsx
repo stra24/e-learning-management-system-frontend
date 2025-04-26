@@ -1,5 +1,5 @@
 // app/news/[id]/page.tsx
-import PageTitle from "@/app/components/page-title/PageTitle";
+import PageTitle from "@/components/page-title/PageTitle";
 
 interface NewsDetailProps {
 	newsId: string;

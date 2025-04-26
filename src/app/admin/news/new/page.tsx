@@ -1,6 +1,6 @@
-import Header from "@/app/components/Header";
-import NewsDetailForAdmin from "@/app/components/news/NewsDetailForAdmin";
-import SidebarForAdmin from "@/app/components/sidebar/SidebarForAdmin";
+import Header from "@/components/Header";
+import NewsDetailForAdmin from "@/components/news/NewsDetailForAdmin";
+import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 
 export interface NewsDetailProps {
 	params: {

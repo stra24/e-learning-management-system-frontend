@@ -1,5 +1,5 @@
-import Header from "@/app/components/Header";
-import NewsDetail from "@/app/components/news/NewsDetail";
+import Header from "@/components/Header";
+import NewsDetail from "@/components/news/NewsDetail";
 
 export interface NewsDetailProps {
   params: {

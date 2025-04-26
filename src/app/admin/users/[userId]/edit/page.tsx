@@ -1,6 +1,6 @@
-import SidebarForAdmin from "@/app/components/sidebar/SidebarForAdmin";
-import Header from "@/app/components/Header";
-import UserDetailForAdmin from "@/app/components/user/UserDetailForAdmin";
+import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
+import Header from "@/components/Header";
+import UserDetailForAdmin from "@/components/user/UserDetailForAdmin";
 
 export default function Home() {
 	return (

@@ -1,25 +1,27 @@
 // app/news/page.tsx
 "use client";
-import PageTitle from "@/app/components/page-title/PageTitle";
+import useSWR from 'swr';
+import { fetcherWithJWT } from '@/swr/fetcher';
 import { useRouter } from 'next/navigation';
+import { NewsPageDto } from '@/types/news';
+import { convertDateString } from '@/lib/dateUtil';
 
 export default function NewsList() {
 	const router = useRouter();
+
+	const { data: findNewsApiResponse, error: findNewsApiError } =
+		useSWR<NewsPageDto>('http://localhost:8080/api/news', fetcherWithJWT);
 
 	const toNewsDetailPage = (newsId: string) => {
 		router.push("/admin/news/" + newsId + "/edit");
 	};
 
-	const handleDelete = (newsId: number) => {
+	const handleDelete = (newsId: string) => {
 		console.log(`ニュースID ${newsId} を削除します`);
 	};
 
-	const newsList = [
-		{ id: 1, date: "2025年1月1日", title: "大事なお知らせ①" },
-		{ id: 2, date: "2025年1月2日", title: "大事なお知らせ②" },
-		{ id: 3, date: "2025年1月3日", title: "大事なお知らせ③" },
-		{ id: 4, date: "2025年1月4日", title: "新機能リリースのお知らせ" },
-	];
+	if (findNewsApiError) return <div>エラーが発生しました</div>;
+	if (!findNewsApiResponse) return <div>読み込み中...</div>;
 
 	return (
 		<div className="max-w-[800px] mx-auto px-4">
@@ -42,21 +44,23 @@ export default function NewsList() {
 
 			{/* お知らせ一覧 */}
 			<ul className="divide-y divide-gray-200">
-				{newsList.map((news) => (
+				{findNewsApiResponse.newsDtos.map((newsDto) => (
 					<li
-						key={news.id}
+						key={newsDto.id}
 						className="py-4 px-2 flex justify-between items-center hover:bg-gray-100 transition cursor-pointer"
-						onClick={() => toNewsDetailPage(`${news.id}`)}
+						onClick={() => toNewsDetailPage(`${newsDto.id}`)}
 					>
 						<div>
-							<div className="text-gray-600 text-sm">{news.date}</div>
+							<div className="text-gray-600 text-sm">
+								{convertDateString(newsDto.createdAt)}
+							</div>
 							<div className="text-lg font-medium text-gray-800 mt-1">
-								{news.title}
+								{newsDto.title}
 							</div>
 						</div>
 
 						<button
-							onClick={() => handleDelete(news.id)}
+							onClick={() => handleDelete(newsDto.id)}
 							className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition cursor-pointer"
 						>
 							削除

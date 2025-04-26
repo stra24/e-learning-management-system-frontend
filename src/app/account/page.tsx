@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import PageTitle from "@/app/components/page-title/PageTitle";
-import Header from "@/app/components/Header";
+import PageTitle from "@/components/page-title/PageTitle";
+import Header from "@/components/Header";
 
 export default function MyAccount() {
 	const [userName, setUserName] = useState("yamada_taro");

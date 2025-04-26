@@ -2,9 +2,9 @@
 
 import type { UserPageDto } from "@/types/user";
 import useSWR from "swr";
-import SidebarForAdmin from "@/app/components/sidebar/SidebarForAdmin";
-import Header from "@/app/components/Header";
-import UserListForAdmin from "@/app/components/user/UserListForAdmin";
+import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
+import Header from "@/components/Header";
+import UserListForAdmin from "@/components/user/UserListForAdmin";
 
 const fetcher = (url: string): Promise<UserPageDto> =>
 	fetch(url).then(res => {

@@ -1,5 +1,5 @@
 "use client";
-import PageTitle from "@/app/components/page-title/PageTitle";
+import PageTitle from "@/components/page-title/PageTitle";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 

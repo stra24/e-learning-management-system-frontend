@@ -1,7 +1,7 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import MultiColumnPageTitle from "@/app/components/page-title/MultiColumnPageTitle";
+import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
 
 interface NewsDetailProps {
 	newsId?: string;

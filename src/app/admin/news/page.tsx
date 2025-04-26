@@ -1,6 +1,6 @@
-import SidebarForAdmin from "@/app/components/sidebar/SidebarForAdmin";
-import Header from "@/app/components/Header";
-import NewsListForAdmin from "@/app/components/news/NewsListForAdmin";
+import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
+import Header from "@/components/Header";
+import NewsListForAdmin from "@/components/news/NewsListForAdmin";
 
 export default function Home() {
 	return (

@@ -1,5 +1,5 @@
 "use client";
-import CourseCard from "@/app/components/course/CourseCard";
+import CourseCard from "@/components/course/CourseCard";
 import Link from "next/link";
 
 export default function CourseListForAdmin() {

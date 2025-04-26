@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import MultiColumnPageTitle from "@/app/components/page-title/MultiColumnPageTitle";
+import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
 
 export default function CourseCreateForm() {
 	const router = useRouter();  // クライアントサイドでのみ利用

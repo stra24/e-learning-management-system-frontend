@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import MultiColumnPageTitle from "@/app/components/page-title/MultiColumnPageTitle";
+import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
 
 export default function UserDetailForAdmin() {
 	const router = useRouter();
