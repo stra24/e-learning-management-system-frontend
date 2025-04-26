@@ -1,23 +1,10 @@
+// SWR用: 必ず JSON を返す
 export const fetcherWithJWT = async (url: string) => {
-	// クッキーからJWTを取得
-	const token = document.cookie
-		.split('; ')
-		.find(row => row.startsWith('JWT='))?.split('=')[1]; // CookieからJWTを取得
+	const token = getJWTFromCookie();
 
-	let headers = {};
-	if (token) {
-		console.log('JWTがクッキーに見つかりました');
-		headers = {
-			'Authorization': `Bearer ${token}`, // AuthorizationヘッダーにJWTをセット
-		};
-	} else {
-		console.log('JWTがクッキーに見つかりません');
-	}
-
-	
 	const res = await fetch(url, {
-		headers,
-		credentials: 'include', // クロスサイトでもクッキーを送信する
+		headers: { Authorization: `Bearer ${token}` },
+		credentials: 'include',
 	});
 
 	if (!res.ok) {
@@ -25,5 +12,26 @@ export const fetcherWithJWT = async (url: string) => {
 		throw new Error('リクエストに失敗しました');
 	}
 
-	return res.json(); // レスポンスのJSONを返す
+	return res.json();
 };
+
+// 通常fetch用: Responseそのまま返す
+export const fetchResponseWithJWT = async (url: string) => {
+	const token = getJWTFromCookie();
+
+	const res = await fetch(url, {
+		headers: { Authorization: `Bearer ${token}` },
+		credentials: 'include',
+	});
+
+	return res; // ここでは res.json() しない！
+};
+
+// JWT取得共通化
+function getJWTFromCookie(): string {
+	const token = document.cookie
+		.split('; ')
+		.find(row => row.startsWith('JWT='))?.split('=')[1];
+
+	return token || "dummy";
+}

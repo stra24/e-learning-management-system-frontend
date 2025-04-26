@@ -19,7 +19,7 @@ const loginFetcher = async (url: string, { arg }: { arg: { emailAddress: string,
     throw new Error('Failed to login');
   }
 
-  return response.json(); // ログイン成功時のレスポンスを返す
+  return response; // ログイン成功時のレスポンスを返す
 };
 
 export default function LoginForm() {
@@ -47,12 +47,13 @@ export default function LoginForm() {
 
     try {
       // ログイン処理
-      const response = await trigger({ emailAddress, password });
+      await trigger({ emailAddress, password });
       console.log('ログイン成功。クッキーはこちら:', document.cookie);
 	  // コース一覧画面に遷移
 	  router.push('/courses');
 
     } catch (err) {
+	  console.log(err);
       setError('ログインに失敗しました。再試行してください。');
     }
   };

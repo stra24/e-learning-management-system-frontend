@@ -1,50 +1,120 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
+import useSWR from "swr";
 import PageTitle from "@/components/page-title/PageTitle";
 import Header from "@/components/Header";
+import { fetcherWithJWT, fetchResponseWithJWT } from '@/swr/fetcher';
+import type { UserDto } from "@/types/user";
+import Image from "next/image";
 
 export default function MyAccount() {
-	const [userName, setUserName] = useState("yamada_taro");
-	const [fullName, setFullName] = useState("山田 太郎");
-	const [email, setEmail] = useState("taro@example.com");
-	const [thumbnailUrl, setThumbnailUrl] = useState("/profile.png");
+	const router = useRouter();
 
-	const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
+	// 画面に表示するState
+	const [realName, setRealName] = useState("");
+	const [emailAddress, setEmailAddress] = useState("");
+	const [thumbnailUrl, setThumbnailUrl] = useState("/profile.png");
+	const [userName, setUserName] = useState("");
+
+	// 変更にまつわるState
+	const [newUserName, setNewUserName] = useState("");
+	const [currentPassword, setCurrentPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+
+	// モーダルのオープン状態を表すState
+	const [isUserNameUpdateModalOpen, setIsUserNameUpdateModalOpen] = useState(false);
+	const [isPasswordUpdateModalOpen, setIsPasswordUpdateModalOpen] = useState(false);
+
+	// 認証にまつわるState
+	const [userId, setUserId] = useState<string | null>(null);
+
+	// サムネイル画像を変更する関数
 	const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			setSelectedThumbnail(file);
-			setThumbnailUrl(URL.createObjectURL(file)); // 一時的に表示
+			setThumbnailUrl(URL.createObjectURL(file));
+
+			// TODO ユーザー情報変更APIを実行する。	
 		}
 	};
 
-
-	const [newUserName, setNewUserName] = useState("");
-
-	// ユーザー名の変更
-	const [isUserNameUpdateModalOpen, setIsUserNameUpdateModalOpen] = useState(false);
+	// ユーザー名を変更する関数
 	const updateUserName = () => {
 		if (newUserName.trim()) {
 			setUserName(newUserName);
 		}
+
+		// TODO ユーザー情報変更APIを実行する。
+
 		setIsUserNameUpdateModalOpen(false);
 	};
 
-	const [isPasswordUpdateModalOpen, setIsPasswordUpdateModalOpen] = useState(false);
-	const [currentPassword, setCurrentPassword] = useState("");
-	const [newPassword, setNewPassword] = useState("");
+	// パスワードを変更する関数
 	const updatePassword = () => {
 		if (!currentPassword.trim() || !newPassword.trim()) {
 			alert("すべての項目を入力してください");
 			return;
 		}
 
-		// リセット & 閉じる
-		setCurrentPassword("");
-		setNewPassword("");
+		// TODO ユーザー情報変更APIを実行する。
+
 		setIsPasswordUpdateModalOpen(false);
 	};
+
+	// JWTの有効期限が切れている可能性があるため、トークンリフレッシュをする。
+	useEffect(() => {
+		const refreshAndSetToken = async () => {
+			try {
+				await fetchResponseWithJWT('http://localhost:8080/api/auth/refresh');
+
+				const newToken = document.cookie
+					.split("; ")
+					.find((row) => row.startsWith("JWT="))
+					?.split("=")[1] || null;
+
+				if (!newToken) {
+					router.push("/login");
+					return;
+				}
+
+				const parsedUserId = JSON.parse(atob(newToken.split(".")[1])).sub;
+				setUserId(parsedUserId);
+			} catch (error) {
+				console.error("リフレッシュ失敗", error);
+				router.push("/login");
+			}
+		};
+
+		refreshAndSetToken();
+	}, [router]);
+
+	// トークンリフレッシュが完了したら（userIdがセットされたら）、ユーザー情報取得APIを実行する。
+	const { data: userData, error: userError } = useSWR<UserDto>(
+		userId ? `http://localhost:8080/api/users/${userId}` : null,
+		fetcherWithJWT
+	);
+
+	// ユーザー情報取得APIの結果が返ってきたら（userDataを受け取ったら）、各項目のStateにセットする。
+	useEffect(() => {
+		if (userData) {
+			setUserName(userData.userName);
+			setRealName(userData.realName);
+			setEmailAddress(userData.emailAddress);
+			if (userData.thumbnailUrl) {
+				setThumbnailUrl(userData.thumbnailUrl);
+			}
+		}
+	}, [userData]);
+
+	if (!userId || !userData) {
+		return <div>読み込み中...</div>;
+	}
+
+	if (userError) {
+		return <div>エラーが発生しました。</div>;
+	}
 
 	return (
 		<>
@@ -58,20 +128,22 @@ export default function MyAccount() {
 					{[
 						{
 							label: "氏名",
-							value: fullName,
+							value: realName,
 						},
 						{
 							label: "メールアドレス",
-							value: email,
+							value: emailAddress,
 						},
 						{
 							label: "サムネイル画像",
 							value: (
 								<div className="flex items-center gap-4">
-									<img
-										src={thumbnailUrl}
+									<Image
+										src="/profile.png"
 										alt="サムネイル"
 										className="w-32 h-32 rounded-full object-cover object-center border border-gray-300"
+										width={500}
+										height={500}
 									/>
 									<label className="text-blue-600 hover:underline hover:cursor-pointer">
 										変更
@@ -130,20 +202,24 @@ export default function MyAccount() {
 				{/* ユーザー名変更モーダル */}
 				{isUserNameUpdateModalOpen && (
 					<div
-						className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+						className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
 						onClick={() => setIsUserNameUpdateModalOpen(false)}
 					>
 						<div
 							className="bg-white opacity-100 rounded-lg p-6 w-full max-w-md shadow-lg"
 							onClick={(e) => e.stopPropagation()} // モーダル内クリックで閉じない
 						>
-							<h2 className="text-lg font-semibold mb-6 text-center">ユーザー名の変更</h2>
+							<h2 className="text-lg font-semibold mb-6 text-center">
+								ユーザー名の変更
+							</h2>
 
 							<div className="mb-4">
 								<label className="block text-sm font-medium text-gray-700 mb-1">
 									現在のユーザー名
 								</label>
-								<div className="bg-gray-200 p-2 rounded text-sm">{userName}</div>
+								<div className="bg-gray-200 p-2 rounded text-sm">
+									{userName}
+								</div>
 							</div>
 
 							<div className="mb-6">
@@ -178,14 +254,16 @@ export default function MyAccount() {
 
 				{isPasswordUpdateModalOpen && (
 					<div
-						className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+						className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
 						onClick={() => setIsPasswordUpdateModalOpen(false)}
 					>
 						<div
 							className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
 							onClick={(e) => e.stopPropagation()}
 						>
-							<h2 className="text-lg font-semibold mb-6 text-center">パスワードの変更</h2>
+							<h2 className="text-lg font-semibold mb-6 text-center">
+								パスワードの変更
+							</h2>
 
 							<div className="mb-4">
 								<label className="block text-sm font-medium text-gray-700 mb-1">

@@ -2,8 +2,8 @@
 "use client";
 import PageTitle from "@/components/page-title/PageTitle";
 import useSWR from 'swr';
-import { fetcherWithJWT } from '@/swr/fetcher';
 import { useRouter } from 'next/navigation';
+import { fetcherWithJWT } from '@/swr/fetcher';
 import { NewsPageDto } from '@/types/news';
 import { convertDateString } from '@/lib/dateUtil';
 
