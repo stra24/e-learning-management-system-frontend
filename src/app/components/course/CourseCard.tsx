@@ -6,11 +6,10 @@ type CourseCardProps = {
 	title: string;
 	progress: number; // 0〜100
 	description: string;
-	isUser?: boolean;
 	isAdmin: boolean;
   };
   
-export default function CourseCard({ imageUrl, title, progress, description, isUser, isAdmin }: CourseCardProps) {
+export default function CourseCard({ imageUrl, title, progress, description, isAdmin }: CourseCardProps) {
 	const router = useRouter();
 	const toLessonPage = () => {
 		if (isAdmin) {
@@ -40,7 +39,7 @@ export default function CourseCard({ imageUrl, title, progress, description, isU
 					<p className="text-sm text-gray-600 mb-3 line-clamp-3">{description}</p>
 				</div>
 
-				{isUser && (
+				{!isAdmin && (
 					<div>
 						{/* 進捗バー */}
 						<div className="h-1 bg-gray-200 rounded-full mb-1.5">

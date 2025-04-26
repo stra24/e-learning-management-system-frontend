@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import useSWRMutation from 'swr/mutation';
@@ -10,6 +11,7 @@ const loginFetcher = async (url: string, { arg }: { arg: { emailAddress: string,
     headers: {
       'Content-Type': 'application/json',
     },
+	credentials: 'include',
     body: JSON.stringify(arg),
   });
 
@@ -21,6 +23,7 @@ const loginFetcher = async (url: string, { arg }: { arg: { emailAddress: string,
 };
 
 export default function LoginForm() {
+  const router = useRouter();
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -45,9 +48,9 @@ export default function LoginForm() {
     try {
       // ログイン処理
       const response = await trigger({ emailAddress, password });
-      console.log('ログイン成功:', response);
-
-      // ここで成功時の処理（例：ユーザーをリダイレクトなど）
+      console.log('ログイン成功。クッキーはこちら:', document.cookie);
+	  // コース一覧画面に遷移
+	  router.push('/courses');
 
     } catch (err) {
       setError('ログインに失敗しました。再試行してください。');
