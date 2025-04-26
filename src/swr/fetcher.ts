@@ -7,6 +7,11 @@ export const fetcherWithJWT = async (url: string) => {
 		credentials: 'include',
 	});
 
+	if (res.status === 403) {
+		window.location.href = '/login';
+		throw new Error('認証エラー: ログイン画面へリダイレクトしました');
+	}
+
 	if (!res.ok) {
 		console.log('リクエストに失敗しました');
 		throw new Error('リクエストに失敗しました');
@@ -16,13 +21,19 @@ export const fetcherWithJWT = async (url: string) => {
 };
 
 // 通常fetch用: Responseそのまま返す
-export const fetchResponseWithJWT = async (url: string) => {
+export const fetchResponseWithJWT = async (url: string, method : string = 'GET') => {
 	const token = getJWTFromCookie();
 
 	const res = await fetch(url, {
+		method,
 		headers: { Authorization: `Bearer ${token}` },
 		credentials: 'include',
 	});
+
+	if (res.status === 403) {
+		window.location.href = '/login';
+		throw new Error('認証エラー: ログイン画面へリダイレクトしました');
+	}
 
 	return res; // ここでは res.json() しない！
 };

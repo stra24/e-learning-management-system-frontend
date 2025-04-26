@@ -1,69 +1,57 @@
 "use client";
-import PageTitle from "@/components/page-title/PageTitle";
+
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Image from "next/image";
+import useSWR from "swr";
+import { fetcherWithJWT } from "@/swr/fetcher";
+import { UserPageDto } from "@/types/user";
+import { convertDateTimeString } from "@/lib/dateUtil";
 
 export default function UserListForAdmin() {
 	const router = useRouter();
 
-	// 仮ユーザーデータ（本番はAPIで取得予定）
-	const users = [
-		{
-			id: 1, name: "山田 太郎", email: "taro@example.com", username: "taro123",
-			thumbnailUrl: "/noname.png", lastLogin: "2025-04-21 18:30", progress: 85,
-			createdAt: "2025-03-15 10:00"
-		},
-		{
-			id: 2, name: "佐藤 花子", email: "hanako@example.com", username: "hanako_s",
-			thumbnailUrl: "/noname.png", lastLogin: "2025-04-20 09:15", progress: 42,
-			createdAt: "2025-03-16 12:20"
-		},
-		{
-			id: 3, name: "田中 一郎", email: "ichiro@example.com", username: "ichiro_t",
-			thumbnailUrl: "/noname.png", lastLogin: "2025-04-18 12:45", progress: 100,
-			createdAt: "2025-03-14 11:50"
-		},
-		{
-			id: 4, name: "中村 次郎", email: "jiro@example.com", username: "jiro_n",
-			thumbnailUrl: "/noname.png", lastLogin: "2025-04-18 14:20", progress: 60,
-			createdAt: "2025-03-17 09:10"
-		},
-		{
-			id: 5, name: "高橋 さゆり", email: "sayuri@example.com", username: "sayuri_t",
-			thumbnailUrl: "/noname.png", lastLogin: "2025-04-17 08:00", progress: 78,
-			createdAt: "2025-03-13 13:30"
-		},
-		{
-			id: 6, name: "加藤 健", email: "ken@example.com", username: "ken_k",
-			thumbnailUrl: "/noname.png", lastLogin: "2025-04-15 17:00", progress: 90,
-			createdAt: "2025-03-12 15:40"
-		},
-	];
+	const { data: findUsersApiResponse, error: findUsersApiError } =
+		useSWR<UserPageDto>('http://localhost:8080/api/users', fetcherWithJWT);
 
-	// ページネーション
-	const itemsPerPage = 3;
-	const [currentPage, setCurrentPage] = useState(1);
-	const totalPages = Math.ceil(users.length / itemsPerPage);
+	// 1ページで表示する件数
+	const [pageSize, setPageSize] = useState(10);
 
-	const handleRowClick = (id: number) => {
+	// ページ番号
+	const [pageNum, setPageNum] = useState(1);
+
+	// 合計ページ数
+	const [totalPageNum, setTotalPageNum] = useState(1);
+
+	// ユーザー詳細画面に遷移する関数
+	const toUserDetailView = (id: string) => {
 		router.push(`/admin/users/${id}/edit`);
 	};
 
-	const handleDelete = (e: React.MouseEvent, id: number) => {
+	// ユーザーを削除する関数
+	const deleteUser = (e: React.MouseEvent, id: string) => {
 		e.stopPropagation();
 		alert(`ユーザーID ${id} を削除します（実装は後ほど）`);
+		// TODO 要実装
 	};
 
 	const handlePrevPage = () => {
-		if (currentPage > 1) setCurrentPage(currentPage - 1);
+		// TODO 要実装
 	};
 
 	const handleNextPage = () => {
-		if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+		// TODO 要実装
 	};
 
-	const startIndex = (currentPage - 1) * itemsPerPage;
-	const currentUsers = users.slice(startIndex, startIndex + itemsPerPage);
+	useEffect(() => {
+		if (findUsersApiResponse) {
+			setTotalPageNum(Math.ceil(findUsersApiResponse.totalSize / pageSize));
+		}
+	}, [findUsersApiResponse, pageSize]);
+
+
+	if (findUsersApiError) return <div>エラーが発生しました</div>;
+	if (!findUsersApiResponse) return <div>読み込み中...</div>;
 
 	return (
 		<div className="max-w-[1500px] mx-auto px-4">
@@ -76,7 +64,7 @@ export default function UserListForAdmin() {
 				{/* ボタンを右に配置 */}
 				<div className="flex justify-end">
 					<button
-						onClick={() => router.push("/admin/users/create")}
+						onClick={() => router.push("/admin/users/new")}
 						className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 whitespace-nowrap"
 					>
 						ユーザー登録
@@ -100,30 +88,33 @@ export default function UserListForAdmin() {
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-gray-200 bg-white">
-						{currentUsers.map((user) => (
+						{findUsersApiResponse.userDtos.map((user) => (
 							<tr
 								key={user.id}
-								className="hover:bg-gray-100 cursor-pointer transition"
-								onClick={() => handleRowClick(user.id)}
+								className="hover:bg-gray-200 cursor-pointer transition"
+								onClick={() => toUserDetailView
+							(user.id)}
 							>
 								<td className="px-4 py-1">{user.id}</td>
 								<td className="px-4 py-1">
-									<img
-										src={user.thumbnailUrl}
-										alt={user.name}
+									<Image
+										src="/profile.png"
+										alt="サムネイル"
 										className="w-14 h-14 rounded-full object-cover"
+										width={500}
+										height={500}
 									/>
 								</td>
-								<td className="px-4 py-1">{user.name}</td>
-								<td className="px-4 py-1">{user.email}</td>
-								<td className="px-4 py-1">{user.username}</td>
-								<td className="px-4 py-1">{user.createdAt}</td>
-								<td className="px-4 py-1">{user.lastLogin}</td>
-								<td className="px-4 py-1">{user.progress}%</td>
+								<td className="px-4 py-1">{user.realName}</td>
+								<td className="px-4 py-1">{user.emailAddress}</td>
+								<td className="px-4 py-1">{user.userName}</td>
+								<td className="px-4 py-1">{convertDateTimeString(user.createdAt)}</td>
+								<td className="px-4 py-1">実装中</td>
+								<td className="px-4 py-1">実装中</td>
 								<td className="px-4 py-1">
 									<button
 										className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-										onClick={(e) => handleDelete(e, user.id)}
+										onClick={(e) => deleteUser(e, user.id)}
 									>
 										削除
 									</button>
@@ -137,17 +128,17 @@ export default function UserListForAdmin() {
 				<div className="flex items-center justify-center mt-6">
 					<button
 						onClick={handlePrevPage}
-						disabled={currentPage === 1}
+						disabled={pageNum === 1}
 						className="px-3 py-1 text-base bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:hover:bg-gray-200 enabled:cursor-pointer"
 					>
 						前へ
 					</button>
 					<span className="mx-3 text-base text-gray-700">
-						{currentPage} / {totalPages} ページ
+						{pageNum} / {totalPageNum} ページ
 					</span>
 					<button
 						onClick={handleNextPage}
-						disabled={currentPage === totalPages}
+						disabled={pageNum === totalPageNum}
 						className="px-3 py-1 text-base bg-gray-200 rounded hover:bg-gray-400 disabled:opacity-50 disabled:hover:bg-transparent enabled:cursor-pointer"
 					>
 						次へ
