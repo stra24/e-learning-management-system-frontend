@@ -8,7 +8,7 @@ import { fetcherWithJWT } from "@/swr/fetcher";
 import { UserPageDto } from "@/types/user";
 import { convertDateTimeString } from "@/lib/dateUtil";
 
-export default function UserListForAdmin() {
+export default function UserList() {
 	const router = useRouter();
 
 	const { data: findUsersApiResponse, error: findUsersApiError } =
@@ -65,7 +65,7 @@ export default function UserListForAdmin() {
 				<div className="flex justify-end">
 					<button
 						onClick={() => router.push("/admin/users/new")}
-						className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 whitespace-nowrap"
+						className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 whitespace-nowrap hover:cursor-pointer"
 					>
 						ユーザー登録
 					</button>

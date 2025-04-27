@@ -1,6 +1,7 @@
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 import Header from "@/components/Header";
-import UserDetailForAdmin from "@/components/user/UserDetailForAdmin";
+import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
+import UserDetail from "@/components/user/UserDetail";
 
 export default function Home() {
 	return (
@@ -14,7 +15,9 @@ export default function Home() {
 
 				{/* メインコンテンツ部分 */}
 				<div className="flex-1 max-h-screen ml-[17.5rem]">
-					<UserDetailForAdmin />
+					{/* タイトル */}
+					<MultiColumnPageTitle title="ユーザー新規作成" />
+					<UserDetail />
 				</div>
 			</div>
 		</div>

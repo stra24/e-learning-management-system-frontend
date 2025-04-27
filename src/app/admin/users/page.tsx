@@ -2,7 +2,7 @@
 
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 import Header from "@/components/Header";
-import UserListForAdmin from "@/components/user/UserListForAdmin";
+import UserList from "@/components/user/UserList";
 
 export default function Home() {
 	return (
@@ -16,7 +16,7 @@ export default function Home() {
 
 				{/* メインコンテンツ部分 */}
 				<div className="flex-1 max-h-screen ml-[17.5rem]">
-					<UserListForAdmin />
+					<UserList />
 				</div>
 			</div>
 		</div>

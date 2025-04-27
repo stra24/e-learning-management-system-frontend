@@ -21,13 +21,27 @@ export const fetcherWithJWT = async (url: string) => {
 };
 
 // 通常fetch用: Responseそのまま返す
-export const fetchResponseWithJWT = async (url: string, method : string = 'GET') => {
+export const fetchResponseWithJWT = async (
+	url: string, 
+	method: string = 'GET', 
+	body?: Record<string, unknown> | FormData
+) => {
 	const token = getJWTFromCookie();
+
+	const headers: HeadersInit = {
+		'Authorization': `Bearer ${token}`,
+	};
+
+	// body が FormData でない場合のみ Content-Type を設定
+	if (body && !(body instanceof FormData)) {
+		headers['Content-Type'] = 'application/json';
+	}
 
 	const res = await fetch(url, {
 		method,
-		headers: { Authorization: `Bearer ${token}` },
+		headers,
 		credentials: 'include',
+		body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
 	});
 
 	if (res.status === 403) {
@@ -35,8 +49,9 @@ export const fetchResponseWithJWT = async (url: string, method : string = 'GET')
 		throw new Error('認証エラー: ログイン画面へリダイレクトしました');
 	}
 
-	return res; // ここでは res.json() しない！
+	return res; // JSONを返さず、レスポンスそのまま返す
 };
+
 
 // JWT取得共通化
 function getJWTFromCookie(): string {
