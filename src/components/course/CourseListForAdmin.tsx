@@ -25,35 +25,35 @@ export default function CourseListForAdmin() {
 			{/* コースカード一覧 */}
 			<div className="mx-auto grid grid-cols-3 gap-6 w-fit items-start pb-10">
 				<CourseCard
-					imageUrl="/sample.png"
+					imageUrl="/course_thumbnail_sample.png"
 					title="Java入門完全攻略ああああああああああああああああああああああああ"
 					progress={65}
 					description="このコースではJavaの基本からオブジェクト指向、例外処理、Stream APIまで学べます。"
 					isAdmin={true}
 				/>
 				<CourseCard
-					imageUrl="/sample.png"
+					imageUrl="/course_thumbnail_sample.png"
 					title="SQL入門完全攻略"
 					progress={65}
 					description="このコースではSQLの基本を学べます。"
 					isAdmin={true}
 				/>
 				<CourseCard
-					imageUrl="/sample.png"
+					imageUrl="/course_thumbnail_sample.png"
 					title="Git完全攻略"
 					progress={30}
 					description="このコースではGitとGitHubの基礎からチーム開発まで学べます。"
 					isAdmin={true}
 				/>
 				<CourseCard
-					imageUrl="/sample.png"
+					imageUrl="/course_thumbnail_sample.png"
 					title="Spring Boot入門"
 					progress={0}
 					description="このコースではSpring Bootの基本的な使い方を学びます。"
 					isAdmin={true}
 				/>
 				<CourseCard
-					imageUrl="/sample.png"
+					imageUrl="/course_thumbnail_sample.png"
 					title="Docker完全攻略"
 					progress={10}
 					description="このコースではDockerの導入からコンテナ化まで学びます。"

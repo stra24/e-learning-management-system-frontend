@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useSWR from "swr";
-import { fetcherWithJWT } from "@/swr/fetcher";
+import { fetcherWithJWT, fetchResponseWithJWT } from "@/swr/fetcher";
 import { UserPageDto } from "@/types/user";
 import { convertDateTimeString } from "@/lib/dateUtil";
+import Thumbnail from "../Thumbnail";
 
 export default function UserList() {
 	const router = useRouter();
 
-	const { data: findUsersApiResponse, error: findUsersApiError } =
+	const { data: findUsersApiResponse, error: findUsersApiError, mutate: reloadUsers } =
 		useSWR<UserPageDto>('http://localhost:8080/api/users', fetcherWithJWT);
 
 	// 1ページで表示する件数
@@ -29,10 +30,13 @@ export default function UserList() {
 	};
 
 	// ユーザーを削除する関数
-	const deleteUser = (e: React.MouseEvent, id: string) => {
+	const deleteUser = async (e: React.MouseEvent, userId: string) => {
 		e.stopPropagation();
-		alert(`ユーザーID ${id} を削除します（実装は後ほど）`);
-		// TODO 要実装
+		await fetchResponseWithJWT(
+			`http://localhost:8080/api/users/${userId}`,
+			'DELETE'
+		);
+		await reloadUsers();
 	};
 
 	const handlePrevPage = () => {
@@ -78,6 +82,7 @@ export default function UserList() {
 						<tr>
 							<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ユーザーID</th>
 							<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">サムネイル</th>
+							<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">権限</th>
 							<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">氏名</th>
 							<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">メールアドレス</th>
 							<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ユーザー名</th>
@@ -93,18 +98,21 @@ export default function UserList() {
 								key={user.id}
 								className="hover:bg-gray-200 cursor-pointer transition"
 								onClick={() => toUserDetailView
-							(user.id)}
+									(user.id)}
 							>
 								<td className="px-4 py-1">{user.id}</td>
 								<td className="px-4 py-1">
-									<Image
-										src="/profile.png"
-										alt="サムネイル"
-										className="w-14 h-14 rounded-full object-cover"
-										width={500}
-										height={500}
-									/>
+									<div className="w-14 h-14 rounded-full overflow-hidden border border-gray-300">
+										{user.thumbnailUrl
+											? (
+												<Thumbnail thumbnailUrl={user.thumbnailUrl} />
+											)
+											:
+											<div></div>
+										}
+									</div>
 								</td>
+								<td className="px-4 py-1">{user.userRole}</td>
 								<td className="px-4 py-1">{user.realName}</td>
 								<td className="px-4 py-1">{user.emailAddress}</td>
 								<td className="px-4 py-1">{user.userName}</td>
@@ -113,7 +121,7 @@ export default function UserList() {
 								<td className="px-4 py-1">実装中</td>
 								<td className="px-4 py-1">
 									<button
-										className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+										className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 hover:cursor-pointer"
 										onClick={(e) => deleteUser(e, user.id)}
 									>
 										削除

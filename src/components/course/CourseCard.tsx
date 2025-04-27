@@ -7,8 +7,8 @@ type CourseCardProps = {
 	progress: number; // 0〜100
 	description: string;
 	isAdmin: boolean;
-  };
-  
+};
+
 export default function CourseCard({ imageUrl, title, progress, description, isAdmin }: CourseCardProps) {
 	const router = useRouter();
 	const toLessonPage = () => {
@@ -20,15 +20,18 @@ export default function CourseCard({ imageUrl, title, progress, description, isA
 	};
 
 	return (
-		<div onClick={toLessonPage} className="relative max-w-[22rem] rounded-sm overflow-hidden shadow-md bg-white flex flex-col group hover:cursor-pointer">
+		<div
+			onClick={toLessonPage}
+			className="relative max-w-[22rem] rounded-sm overflow-hidden shadow-lg bg-white flex flex-col group hover:cursor-pointer border border-gray-200"
+		>
 			{/* ホバー時の背景オーバーレイ */}
-			<div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-200 pointer-events-none z-10" />
+			<div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-15 transition-opacity duration-200 pointer-events-none z-10" />
 
 			{/* サムネイル画像 */}
 			<div className="relative aspect-[16/9] overflow-hidden">
-				<Image src={imageUrl} alt={title} fill className="object-cover transition-transform transform duration-200 group-hover:scale-120"/>
+				<Image src={imageUrl} alt={title} fill className="object-cover transition-transform transform duration-200 group-hover:scale-120" />
 			</div>
-			
+
 			{/* 説明概要 */}
 			<div className="p-3 flex flex-col justify-between">
 				<div>

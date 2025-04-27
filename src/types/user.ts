@@ -4,6 +4,7 @@ export type UserDto = {
 	realName: string
 	userName: string
 	thumbnailUrl: string | null
+	userRole: string
 	createdAt: string
 }
 

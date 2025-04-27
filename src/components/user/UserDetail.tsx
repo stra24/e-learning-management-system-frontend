@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams, usePathname  } from 'next/navigation'; // next/navigation からインポート
+import { useRouter, useParams, usePathname } from 'next/navigation'; // next/navigation からインポート
 import useSWR from "swr";
 import { UserDto } from "@/types/user";
 import { fetcherWithJWT, fetchResponseWithJWT } from "@/swr/fetcher";
@@ -19,6 +19,7 @@ export default function UserDetail() {
 	const [emailAddress, setEmailAddress] = useState("");
 	const [thumbnailUrl, setThumbnailUrl] = useState("")
 	const [selectedThumbnailFile, setSelectedThumbnailFile] = useState<File | null>(null);
+	const [userRole, setUserRole] = useState("GENERAL")
 
 	// パスワード関連のState
 	const [password, setPassword] = useState("");
@@ -39,9 +40,13 @@ export default function UserDetail() {
 		}
 	};
 
-	// ユーザー情報を保存する関数（後で実装）
+	// ユーザー情報を保存する関数
 	const handleSave = async () => {
 		try {
+			if (isNewUser && password != confirmPassword) {
+				throw new Error('パスワードが一致しません。');
+			}
+
 			let uploadedThumbnailPath = thumbnailUrl; // 初期は今のパス
 
 			// もし新しいサムネイルが選ばれてたらアップロードする
@@ -60,30 +65,51 @@ export default function UserDetail() {
 				uploadedThumbnailPath = await uploadResponse.text(); // 新しいパスを取得
 			}
 
-			// ユーザー情報を更新する
-			const updateResponse = await fetchResponseWithJWT(
-				`http://localhost:8080/api/users/${userId}`,
-				'PUT',
-				{
-					userId,
-					realName,
-					userName,
-					emailAddress,
-					thumbnailUrl: uploadedThumbnailPath, // 新しいサムネイルパスを使う
-				}
-			);
+			if (isNewUser) {
+				// ユーザー情報を更新する
+				const createResponse = await fetchResponseWithJWT(
+					`http://localhost:8080/api/users`,
+					'POST',
+					{
+						realName,
+						userName,
+						emailAddress,
+						password,
+						confirmPassword,
+						thumbnailUrl: uploadedThumbnailPath,
+						userRole,
+					}
+				);
 
-			if (!updateResponse.ok) {
-				throw new Error('ユーザー情報更新失敗');
+				if (!createResponse.ok) {
+					throw new Error('ユーザー新規作成 - 失敗');
+				}
+			} else {
+				// ユーザー情報を更新する
+				const updateResponse = await fetchResponseWithJWT(
+					`http://localhost:8080/api/users/${userId}`,
+					'PUT',
+					{
+						userId,
+						realName,
+						userName,
+						emailAddress,
+						thumbnailUrl: uploadedThumbnailPath,
+					}
+				);
+
+				if (!updateResponse.ok) {
+					throw new Error('ユーザー更新 - 失敗');
+				}
 			}
 
 			alert('保存しました！');
+			router.push('/admin/users');
 		} catch (error) {
 			console.error(error);
 			alert('保存に失敗しました');
 		}
 	};
-
 
 	// JWT の有効期限が切れている場合にトークンをリフレッシュし、userId を取得
 	useEffect(() => {
@@ -116,7 +142,7 @@ export default function UserDetail() {
 		if (paramUserId) {
 			// ユーザー編集画面の場合
 			setUserId(Array.isArray(paramUserId) ? paramUserId[0] : paramUserId);
-		} else if(isNewUser) {
+		} else if (isNewUser) {
 			// ユーザー新規画面の場合
 			setUserId("")
 			setRealName("");
@@ -144,6 +170,7 @@ export default function UserDetail() {
 			if (userData.thumbnailUrl) {
 				setThumbnailUrl(userData.thumbnailUrl);
 			}
+			setUserRole(userData.userRole);
 		}
 	}, [userData, isPasswordUpdateModalOpen, paramUserId]);
 
@@ -160,6 +187,19 @@ export default function UserDetail() {
 		<div className="max-w-3xl mx-auto">
 			<div className="border border-gray-300 rounded overflow-hidden">
 				{[
+					{
+						label: "権限",
+						value: (
+							<select
+								value={userRole}
+								onChange={(e) => setUserRole(e.target.value)}
+								className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+							>
+								<option value="GENERAL">一般</option>
+								<option value="ADMIN">管理者</option>
+							</select>
+						),
+					},
 					{
 						label: "氏名",
 						value: (

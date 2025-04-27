@@ -45,7 +45,7 @@ export const fetchResponseWithJWT = async (
 	});
 
 	if (res.status === 403) {
-		window.location.href = '/login';
+		// window.location.href = '/login';
 		throw new Error('認証エラー: ログイン画面へリダイレクトしました');
 	}
 

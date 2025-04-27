@@ -63,7 +63,7 @@ export default function Home() {
 				{findCoursesApiResponse.courseDtos.map((course) => (
 					<CourseCard
 						key={course.id}
-						imageUrl="/sample.png"
+						imageUrl="/course_thumbnail_sample.png"
 						title={course.title}
 						description={course.description}
 						progress={65}
