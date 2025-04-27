@@ -107,7 +107,10 @@ export default function UserDetailForAdmin() {
 
 	return (
 		<div className="max-w-lg mx-auto">
-			<MultiColumnPageTitle title="ユーザー詳細" />
+			{userId
+				? <MultiColumnPageTitle title="ユーザー詳細" />
+				: <MultiColumnPageTitle title="ユーザー新規作成" />
+			}
 
 			<div className="flex flex-col items-center mt-8 mb-6">
 				{/* サムネイル画像 */}
