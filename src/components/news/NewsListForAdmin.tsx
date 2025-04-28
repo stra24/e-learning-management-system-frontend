@@ -1,16 +1,23 @@
-// app/news/page.tsx
 "use client";
-import useSWR from 'swr';
-import { fetcherWithJWT } from '@/swr/fetcher';
+
 import { useRouter } from 'next/navigation';
-import { NewsPageDto } from '@/types/news';
+import { NewsDto, NewsPageDto } from '@/types/news';
 import { convertDateString } from '@/lib/dateUtil';
+import { useApiRequest } from '@/hooks/useApiRequest';
+import { useEffect, useState } from 'react';
 
 export default function NewsList() {
 	const router = useRouter();
 
-	const { data: findNewsApiResponse, error: findNewsApiError } =
-		useSWR<NewsPageDto>('http://localhost:8080/api/news', fetcherWithJWT);
+	// お知らせリスト 
+	const [newsDtos, setNewsDtos] = useState<NewsDto[]>([]);
+
+	// お知らせ一覧取得API
+	const {
+		executeApi: executeFindNewsApi,
+		isLoading: isLoadingFindNewsApi,
+		isError: isErrorFindNewsApi
+	} = useApiRequest();
 
 	const toNewsDetailPage = (newsId: string) => {
 		router.push("/admin/news/" + newsId + "/edit");
@@ -20,8 +27,18 @@ export default function NewsList() {
 		console.log(`ニュースID ${newsId} を削除します`);
 	};
 
-	if (findNewsApiError) return <div>エラーが発生しました</div>;
-	if (!findNewsApiResponse) return <div>読み込み中...</div>;
+	useEffect(() => {
+		const fetchData = async () => {
+			const findNewsApiResponse = await executeFindNewsApi('http://localhost:8080/api/news', 'GET');
+			findNewsApiResponse?.json().then((newsPageDto: NewsPageDto) => {
+				setNewsDtos(newsPageDto.newsDtos);
+			})
+		}
+		fetchData();
+	}, [executeFindNewsApi])
+
+	if (isErrorFindNewsApi) return <div>エラーが発生しました</div>;
+	if (isLoadingFindNewsApi) return <div>読み込み中...</div>;
 
 	return (
 		<div className="max-w-[800px] mx-auto px-4">
@@ -44,7 +61,7 @@ export default function NewsList() {
 
 			{/* お知らせ一覧 */}
 			<ul className="divide-y divide-gray-200">
-				{findNewsApiResponse.newsDtos.map((newsDto) => (
+				{newsDtos.map((newsDto) => (
 					<li
 						key={newsDto.id}
 						className="py-4 px-2 flex justify-between items-center hover:bg-gray-100 transition cursor-pointer"

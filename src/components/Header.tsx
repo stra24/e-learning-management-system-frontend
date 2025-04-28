@@ -3,17 +3,54 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
-import useSWRMutation from 'swr/mutation';
-import { fetchResponseWithJWT } from '@/swr/fetcher';
+import { useApiRequest } from '@/hooks/useApiRequest';
+import { getJWTFromCookie, getSubjectFromJWT } from '@/lib/jwtUtil';
+import { UserDto } from '@/types/user';
 
 const Header = () => {
 	const router = useRouter();
 
+	// リフレッシュトークンAPI
+	const {
+		executeApi: executeRefreshTokenApi,
+	} = useApiRequest();
+
+	// ログアウトAPI
+	const {
+		executeApi: executeLogoutApi,
+	} = useApiRequest();
+
+	// ユーザー取得API
+	const {
+		executeApi: executeFindUserByIdApi,
+		response: responseOfFindUserByIdApi
+	} = useApiRequest();
+
 	const [isOpen, setIsOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 
-	const toTopPage = () => {
-		router.push('/courses');
+	const toTopPage = async () => {
+		try {
+			// リフレッシュトークンを使用して JWT を更新
+			await executeRefreshTokenApi('http://localhost:8080/api/auth/refresh', 'GET');
+
+			// 新しい JWT をクッキーから取得
+			const newToken = getJWTFromCookie();
+
+			if (!newToken) {
+				// トークンがない場合、ログインページへリダイレクト
+				router.push("/login");
+				return;
+			}
+
+			// JWT から userId を取得して、ユーザー取得APIを実行。
+			const userId = getSubjectFromJWT(newToken);
+			await executeFindUserByIdApi(`http://localhost:8080/api/users/${userId}`, 'GET');
+		} catch (err) {
+			// リフレッシュトークンAPI失敗時
+			console.log('リフレッシュトークンAPI - 失敗')
+			console.log(err);
+		}
 	};
 
 	const toMyAccountPage = () => {
@@ -21,11 +58,7 @@ const Header = () => {
 	};
 
 	const logout = async () => {
-		try {
-			await fetchResponseWithJWT('http://localhost:8080/api/logout', 'POST');
-		} catch (error) {
-			console.error('ログアウトAPIエラー', error);
-		}
+		await executeLogoutApi('http://localhost:8080/api/logout', 'POST');
 
 		// 最後に画面遷移
 		router.push('/login');
@@ -50,6 +83,19 @@ const Header = () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [isOpen]);
+
+	useEffect(() => {
+		// API結果を待ってから画面遷移を行う。
+		if (responseOfFindUserByIdApi) {
+			responseOfFindUserByIdApi.json().then((response: UserDto) => {
+				if (response.userRole === '管理者') {
+					router.push('/admin/users');
+				} else {
+					router.push('/courses');
+				}
+			})
+		}
+	}, [responseOfFindUserByIdApi, router]);
 
 	return (
 		<header className="fixed top-0 left-0 w-full bg-blue-900 text-white shadow z-50">

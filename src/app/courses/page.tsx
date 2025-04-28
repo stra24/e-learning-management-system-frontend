@@ -1,31 +1,62 @@
 "use client";
-import useSWR from 'swr';
-import { fetcherWithJWT } from '@/swr/fetcher';
+import { useApiRequest } from '@/hooks/useApiRequest';
 import { useRouter } from 'next/navigation';
 import PageTitle from "@/components/page-title/PageTitle";
 import CourseCard from "@/components/course/CourseCard";
 import Header from "@/components/Header";
 import Link from "next/link";
-import { CoursePageDto } from '@/types/course';
-import { NewsPageDto } from '@/types/news';
 import { convertDateString } from '@/lib/dateUtil';
+import { useEffect, useState } from 'react';
+import { NewsDto, NewsPageDto } from '@/types/news';
+import { CourseDto, CoursePageDto } from '@/types/course';
 
 export default function Home() {
 	const router = useRouter();
 
-	const { data: findCoursesApiResponse, error: findCoursesApiError } =
-		useSWR<CoursePageDto>('http://localhost:8080/api/courses', fetcherWithJWT);
+	// コースリスト 
+	const [courseDtos, setCourseDtos] = useState<CourseDto[]>([]);
 
-	const { data: findNewsApiResponse, error: findNewsApiError } =
-		useSWR<NewsPageDto>('http://localhost:8080/api/news', fetcherWithJWT);
+	// お知らせリスト 
+	const [newsDtos, setNewsDtos] = useState<NewsDto[]>([]);
+
+	// コース一覧取得API
+	const {
+		executeApi: executeFindCoursesApi,
+		isLoading: isLoadingFindCoursesApi,
+		isError: isErrorFindCoursesApi,
+		response: responseOfFindCoursesApi
+	} = useApiRequest();
+
+	// お知らせ一覧取得API
+	const {
+		executeApi: executeFindNewsApi,
+		isLoading: isLoadingFindNewsApi,
+		isError: isErrorFindNewsApi,
+		response: responseOfFindNewsApi
+	} = useApiRequest();
 
 	const toNewsDetailPage = (event: React.MouseEvent<HTMLDivElement>) => {
 		const newsId = event.currentTarget.id;
 		router.push("/news/" + newsId);
 	};
 
-	if (findCoursesApiError || findNewsApiError) return <div>エラーが発生しました</div>;
-	if (!findCoursesApiResponse || !findNewsApiResponse) return <div>読み込み中...</div>;
+	useEffect(() => {
+		const fetchData = async () => {
+			const findCoursesApiResponse = await executeFindCoursesApi('http://localhost:8080/api/courses', 'GET');
+			findCoursesApiResponse?.json().then((coursePageDto: CoursePageDto) => {
+				setCourseDtos(coursePageDto.courseDtos);
+			})
+
+			const findNewsApiResponse = await executeFindNewsApi('http://localhost:8080/api/news', 'GET');
+			findNewsApiResponse?.json().then((newsPageDto: NewsPageDto) => {
+				setNewsDtos(newsPageDto.newsDtos);
+			})
+		}
+		fetchData();
+	}, [executeFindCoursesApi, executeFindNewsApi])
+
+	if (isErrorFindCoursesApi || isErrorFindNewsApi) return <div>エラーが発生しました</div>;
+	if (isLoadingFindCoursesApi || isLoadingFindNewsApi) return <div>読み込み中...</div>;
 
 	return (
 		<>
@@ -38,7 +69,7 @@ export default function Home() {
 					<h2 className="text-xl font-semibold">お知らせ</h2>
 				</div>
 				<div className="px-6 py-4">
-					{findNewsApiResponse.newsDtos.map((news) => (
+					{newsDtos.map((news) => (
 						<div
 							key={news.id}
 							id={news.id}
@@ -60,7 +91,7 @@ export default function Home() {
 			</div>
 
 			<div className="mx-auto grid grid-cols-3 gap-6 w-fit items-start pb-10">
-				{findCoursesApiResponse.courseDtos.map((course) => (
+				{courseDtos.map((course) => (
 					<CourseCard
 						key={course.id}
 						imageUrl="/course_thumbnail_sample.png"

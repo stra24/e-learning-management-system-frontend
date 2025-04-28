@@ -22,7 +22,7 @@ export default function CourseCard({ imageUrl, title, progress, description, isA
 	return (
 		<div
 			onClick={toLessonPage}
-			className="relative max-w-[22rem] rounded-sm overflow-hidden shadow-lg bg-white flex flex-col group hover:cursor-pointer border border-gray-200"
+			className="relative w-[20rem] rounded-sm overflow-hidden shadow-lg bg-white flex flex-col group hover:cursor-pointer border border-gray-200"
 		>
 			{/* ホバー時の背景オーバーレイ */}
 			<div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-15 transition-opacity duration-200 pointer-events-none z-10" />

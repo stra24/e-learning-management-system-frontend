@@ -2,18 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import useSWR from "swr";
-import { fetcherWithJWT, fetchResponseWithJWT } from "@/swr/fetcher";
-import { UserPageDto } from "@/types/user";
+import { UserDto, UserPageDto } from "@/types/user";
 import { convertDateTimeString } from "@/lib/dateUtil";
 import Thumbnail from "../Thumbnail";
+import { useApiRequest } from "@/hooks/useApiRequest";
 
 export default function UserList() {
 	const router = useRouter();
 
-	const { data: findUsersApiResponse, error: findUsersApiError, mutate: reloadUsers } =
-		useSWR<UserPageDto>('http://localhost:8080/api/users', fetcherWithJWT);
+	// ユーザーリスト取得API
+	const {
+		executeApi: executeFindUsersApi,
+		isLoading: isLoadingFindUsersApi,
+		isError: isErrorFindUsersApi,
+		response: responseOfFindUsersApi
+	} = useApiRequest();
+
+	// ユーザー削除API
+	const {
+		executeApi: executeDeleteUserApi,
+	} = useApiRequest();
 
 	// 1ページで表示する件数
 	const [pageSize, setPageSize] = useState(10);
@@ -24,6 +32,9 @@ export default function UserList() {
 	// 合計ページ数
 	const [totalPageNum, setTotalPageNum] = useState(1);
 
+	// ユーザーDTOリスト
+	const [userDtos, setUserDtos] = useState<UserDto[]>([]);
+
 	// ユーザー詳細画面に遷移する関数
 	const toUserDetailView = (id: string) => {
 		router.push(`/admin/users/${id}/edit`);
@@ -32,11 +43,8 @@ export default function UserList() {
 	// ユーザーを削除する関数
 	const deleteUser = async (e: React.MouseEvent, userId: string) => {
 		e.stopPropagation();
-		await fetchResponseWithJWT(
-			`http://localhost:8080/api/users/${userId}`,
-			'DELETE'
-		);
-		await reloadUsers();
+		await executeDeleteUserApi(`http://localhost:8080/api/users/${userId}`, 'DELETE');
+		await executeFindUsersApi('http://localhost:8080/api/users', 'GET');
 	};
 
 	const handlePrevPage = () => {
@@ -48,14 +56,21 @@ export default function UserList() {
 	};
 
 	useEffect(() => {
-		if (findUsersApiResponse) {
-			setTotalPageNum(Math.ceil(findUsersApiResponse.totalSize / pageSize));
+		executeFindUsersApi('http://localhost:8080/api/users', 'GET');
+	}, [executeFindUsersApi]);
+
+	useEffect(() => {
+		if (responseOfFindUsersApi) {
+			responseOfFindUsersApi.json().then((response: UserPageDto) => {
+				setTotalPageNum(Math.ceil(response.totalSize / pageSize));
+				setUserDtos(response.userDtos);
+			})
 		}
-	}, [findUsersApiResponse, pageSize]);
+	}, [pageSize, responseOfFindUsersApi]);
 
 
-	if (findUsersApiError) return <div>エラーが発生しました</div>;
-	if (!findUsersApiResponse) return <div>読み込み中...</div>;
+	if (isErrorFindUsersApi) return <div>エラーが発生しました</div>;
+	if (isLoadingFindUsersApi) return <div>読み込み中...</div>;
 
 	return (
 		<div className="max-w-[1500px] mx-auto px-4">
@@ -93,7 +108,7 @@ export default function UserList() {
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-gray-200 bg-white">
-						{findUsersApiResponse.userDtos.map((user) => (
+						{userDtos.map((user) => (
 							<tr
 								key={user.id}
 								className="hover:bg-gray-200 cursor-pointer transition"

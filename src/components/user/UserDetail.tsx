@@ -1,18 +1,19 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams, usePathname } from 'next/navigation'; // next/navigation からインポート
-import useSWR from "swr";
+import { useRouter, useParams, usePathname } from 'next/navigation';
 import { UserDto } from "@/types/user";
-import { fetcherWithJWT, fetchResponseWithJWT } from "@/swr/fetcher";
 import PasswordUpdateModal from "./PasswordUpdateModal";
 import Thumbnail from "../Thumbnail";
+import { useApiRequest } from "@/hooks/useApiRequest";
+import { getJWTFromCookie, getSubjectFromJWT } from "@/lib/jwtUtil";
 
 export default function UserDetail() {
 	const router = useRouter();
 	const paramUserId = useParams().userId; // URL パラメータから userId を取得
 	const pathname = usePathname();
 	const isNewUser = pathname === '/admin/users/new';
+
 	// 画面に表示するState
 	const [realName, setRealName] = useState("");
 	const [userName, setUserName] = useState("");
@@ -30,6 +31,43 @@ export default function UserDetail() {
 
 	// 認証にまつわるState
 	const [userId, setUserId] = useState<string | null>(null);
+
+	// ファイルアップロードAPI
+	const {
+		executeApi: executeUploadFileApi,
+		isLoading: isLoadingUploadFileApi,
+		isError: isErrorUploadFileApi,
+		response: responseOfUploadFileApi
+	} = useApiRequest();
+
+	// ユーザー新規作成API
+	const {
+		executeApi: executeCreateUserApi,
+		isLoading: isLoadingCreateUserApi,
+		isError: isErrorCreateUserApi,
+		response: responseOfCreateUserApi
+	} = useApiRequest();
+
+	// ユーザー更新API
+	const {
+		executeApi: executeUpdateUserApi,
+		isLoading: isLoadingUpdateUserApi,
+		isError: isErrorUpdateUserApi,
+		response: responseOfUpdateUserApi
+	} = useApiRequest();
+
+	// リフレッシュトークンAPI
+	const {
+		executeApi: executeRefreshTokenApi,
+	} = useApiRequest();
+
+	// ユーザー取得API
+	const {
+		executeApi: executeFindUserByIdApi,
+		isLoading: isLoadingFindUserByIdApi,
+		response: responseOfFindUserByIdApi,
+		isError: isErrorFindUserByIdApi
+	} = useApiRequest();
 
 	// サムネイル画像を変更する関数
 	const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,19 +93,19 @@ export default function UserDetail() {
 				formData.append("file", selectedThumbnailFile);
 
 				// 画像アップロードAPIを呼び出し
-				const uploadResponse = await fetchResponseWithJWT('http://localhost:8080/api/files/upload', 'POST', formData);
+				const uploadFileApiResponse = await executeUploadFileApi('http://localhost:8080/api/files/upload', 'POST', formData);
 
-				if (!uploadResponse.ok) {
+				if (!uploadFileApiResponse?.ok) {
 					throw new Error('サムネイルアップロード失敗');
 				}
 
 				// アップロードしたファイルのパスを取得
-				uploadedThumbnailPath = await uploadResponse.text(); // 新しいパスを取得
+				uploadedThumbnailPath = await uploadFileApiResponse.text(); // 新しいパスを取得
 			}
 
 			if (isNewUser) {
-				// ユーザー情報を更新する
-				const createResponse = await fetchResponseWithJWT(
+				// ユーザー情報を新規作成する
+				const createUserApiResponse = await executeCreateUserApi(
 					`http://localhost:8080/api/users`,
 					'POST',
 					{
@@ -81,12 +119,12 @@ export default function UserDetail() {
 					}
 				);
 
-				if (!createResponse.ok) {
+				if (!createUserApiResponse?.ok) {
 					throw new Error('ユーザー新規作成 - 失敗');
 				}
 			} else {
 				// ユーザー情報を更新する
-				const updateResponse = await fetchResponseWithJWT(
+				const updateUserApiResponse = await executeUpdateUserApi(
 					`http://localhost:8080/api/users/${userId}`,
 					'PUT',
 					{
@@ -98,7 +136,7 @@ export default function UserDetail() {
 					}
 				);
 
-				if (!updateResponse.ok) {
+				if (!updateUserApiResponse?.ok) {
 					throw new Error('ユーザー更新 - 失敗');
 				}
 			}
@@ -116,26 +154,22 @@ export default function UserDetail() {
 		const refreshAndSetToken = async () => {
 			try {
 				// リフレッシュトークンを使用して JWT を更新
-				await fetchResponseWithJWT('http://localhost:8080/api/auth/refresh');
+				await executeRefreshTokenApi('http://localhost:8080/api/auth/refresh', 'GET');
 
 				// 新しい JWT をクッキーから取得
-				const newToken = document.cookie
-					.split("; ")
-					.find((row) => row.startsWith("JWT="))
-					?.split("=")[1] || null;
+				const newToken = getJWTFromCookie();
 
 				if (!newToken) {
-					// トークンがない場合、ログインページへリダイレクト
-					router.push("/login");
+					alert("トークンがありません")
 					return;
 				}
 
 				// JWT から userId を取得
-				const parsedUserId = JSON.parse(atob(newToken.split(".")[1])).sub;
-				setUserId(parsedUserId);
+				setUserId(getSubjectFromJWT(newToken));
 			} catch (error) {
 				console.error("トークンリフレッシュ失敗", error);
-				router.push("/login");
+				// router.push("/login");
+				alert("トークンリフレッシュ失敗")
 			}
 		};
 
@@ -153,33 +187,36 @@ export default function UserDetail() {
 			// マイアカウント画面の場合
 			refreshAndSetToken();
 		}
-	}, [isNewUser, paramUserId, router]);
+	}, [executeRefreshTokenApi, isNewUser, paramUserId, router]);
 
-	// userId がセットされたらユーザー情報を取得するための API 呼び出し
-	const { data: userData, error: userError } = useSWR<UserDto>(
-		userId ? `http://localhost:8080/api/users/${userId}` : null,
-		fetcherWithJWT
-	);
+	// userId がセットされたら（新規画面以外でしかセットされない）、「ユーザー情報取得」と「ユーザー権限のセット」を行う。
+	useEffect(() => {
+		if (userId && !isNewUser) {
+			executeFindUserByIdApi(`http://localhost:8080/api/users/${userId}`, 'GET');
+		}
+	}, [executeFindUserByIdApi, userId, isNewUser]);
 
 	// ユーザー情報を取得したら、State にセットする
 	useEffect(() => {
-		if (userData) {
-			setUserName(userData.userName);
-			setRealName(userData.realName);
-			setEmailAddress(userData.emailAddress);
-			if (userData.thumbnailUrl) {
-				setThumbnailUrl(userData.thumbnailUrl);
-			}
-			setUserRole(userData.userRole);
+		if (responseOfFindUserByIdApi) {
+			responseOfFindUserByIdApi.json().then((userDto: UserDto) => {
+				setUserName(userDto.userName);
+				setRealName(userDto.realName);
+				setEmailAddress(userDto.emailAddress);
+				if (userDto.thumbnailUrl) {
+					setThumbnailUrl(userDto.thumbnailUrl);
+				}
+				setUserRole(userDto.userRole == '管理者' ? 'ADMIN' : 'GENERAL');
+			})
 		}
-	}, [userData, isPasswordUpdateModalOpen, paramUserId]);
+	}, [isPasswordUpdateModalOpen, paramUserId, responseOfFindUserByIdApi]);
 
-	// ロード中・エラー時の処理
-	if (!isNewUser && (!userId || !userData)) {
+	// 新規画面の場合、ユーザー取得処理は行わないので、新規画面以外かつユーザー取得レスポンスがまだ返ってきていない場合はロード画面とする。
+	if (!isNewUser && (!userId || !responseOfFindUserByIdApi)) {
 		return <div>読み込み中...</div>;
 	}
 
-	if (userError) {
+	if (isErrorFindUserByIdApi) {
 		return <div>エラーが発生しました。</div>;
 	}
 

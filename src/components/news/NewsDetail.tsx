@@ -2,21 +2,38 @@
 
 import { useParams } from 'next/navigation';
 import PageTitle from "@/components/page-title/PageTitle";
-import { fetcherWithJWT } from '@/swr/fetcher';
 import { NewsDto } from '@/types/news';
-import useSWR from 'swr';
 import { convertDateString } from '@/lib/dateUtil';
+import { useApiRequest } from '@/hooks/useApiRequest';
+import { useEffect, useState } from 'react';
 
 export default function NewsDetail() {
 	const newsId = useParams().newsId;
 
-	const { data: findNewsByIdApiResponse, error: findNewsByIdApiError } =
-		useSWR<NewsDto>('http://localhost:8080/api/news/' + newsId, fetcherWithJWT);
+	// お知らせリスト 
+	const [newsDto, setNewsDto] = useState<NewsDto | null>(null);
 
-	if (findNewsByIdApiError) return <div>エラーが発生しました</div>;
-	if (!findNewsByIdApiResponse) return <div>読み込み中...</div>;
+	// お知らせ取得API
+	const {
+		executeApi: executeFindNewsByIdApi,
+		isLoading: isLoadingFindNewsByIdApi,
+		isError: isErrorFindNewsByIdApi
+	} = useApiRequest();
 
-	if (!findNewsByIdApiResponse) {
+	useEffect(() => {
+		const fetchData = async () => {
+			const findNewsByIdApiResponse = await executeFindNewsByIdApi(`http://localhost:8080/api/news/${newsId}`, 'GET');
+			findNewsByIdApiResponse?.json().then((newsDto: NewsDto) => {
+				setNewsDto(newsDto);
+			})
+		}
+		fetchData();
+	}, [executeFindNewsByIdApi, newsId])
+
+	if (isErrorFindNewsByIdApi) return <div>エラーが発生しました</div>;
+	if (isLoadingFindNewsByIdApi) return <div>読み込み中...</div>;
+
+	if (!newsDto) {
 		return (
 			<>
 				<PageTitle title="お知らせ詳細" />
@@ -31,9 +48,9 @@ export default function NewsDetail() {
 		<>
 			<PageTitle title="お知らせ詳細" />
 			<div className="max-w-[800px] mx-auto mt-10 px-4">
-				<div className="text-sm text-gray-500 mb-2">{convertDateString(findNewsByIdApiResponse.createdAt)}</div>
-				<h2 className="text-2xl font-bold mb-4">{findNewsByIdApiResponse.title}</h2>
-				<p className="text-gray-700 leading-relaxed whitespace-pre-line">{findNewsByIdApiResponse.content}</p>
+				<div className="text-sm text-gray-500 mb-2">{convertDateString(newsDto.createdAt)}</div>
+				<h2 className="text-2xl font-bold mb-4">{newsDto.title}</h2>
+				<p className="text-gray-700 leading-relaxed whitespace-pre-line">{newsDto.content}</p>
 			</div>
 		</>
 	);

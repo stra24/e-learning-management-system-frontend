@@ -3,28 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import useSWRMutation from 'swr/mutation';
-import { fetcherWithJWT } from '@/swr/fetcher';
+import { useApiRequest } from '@/hooks/useApiRequest';
+import { getJWTFromCookie, getSubjectFromJWT } from '@/lib/jwtUtil';
 import { UserDto } from '@/types/user';
-import useSWR from 'swr';
-import { useFindUserById } from '@/hooks/useFindUserById';
-
-const loginFetcher = async (url: string, { arg }: { arg: { emailAddress: string, password: string } }) => {
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		credentials: 'include',
-		body: JSON.stringify(arg),
-	});
-
-	if (!response.ok) {
-		throw new Error('Failed to login');
-	}
-
-	return response; // ログイン成功時のレスポンスを返す
-};
 
 export default function LoginForm() {
 	const router = useRouter();
@@ -33,62 +14,56 @@ export default function LoginForm() {
 	const [error, setError] = useState('');
 	const [rememberMe, setRememberMe] = useState(false);
 
-	const [userId, setUserId] = useState<string>('');
-	// 常にuseFindUserByIdを呼び出す
-	const { userData, isLoading, triggerFetch } = useFindUserById(userId);
+	// ユーザー取得API
+	const {
+		executeApi: executeFindUserByIdApi,
+		isLoading: isLoadingFindUserByIdApi,
+		response: responseOfFindUserByIdApi
+	} = useApiRequest();
 
-	const { trigger, isMutating } = useSWRMutation(
-		'http://localhost:8080/api/login', // APIのエンドポイント
-		loginFetcher
-	);
+	// ログインAPI
+	const {
+		executeApi: executeLoginApi,
+		isLoading: isLoadingLoginApi,
+	} = useApiRequest();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		// 簡易バリデーション
-		if (!emailAddress || !password) {
-			setError('メールアドレスとパスワードを入力してください。');
-			return;
-		}
-
-		setError('');
-
 		try {
-			// ログイン処理
-			await trigger({ emailAddress, password });
+			await executeLoginApi('http://localhost:8080/api/login', 'POST', { emailAddress, password });
 
 			// 新しい JWT をクッキーから取得
-			const newToken = document.cookie
-				.split("; ")
-				.find((row) => row.startsWith("JWT="))
-				?.split("=")[1] || null;
-
+			const newToken = getJWTFromCookie();
+			console.log('token: ' + newToken)
 			if (!newToken) {
-				// トークンがない場合、ログインページへリダイレクト
-				console.log('トークンがない')
+				// ログインAPIでJWTがクッキーに登録されるため、運用上ここに処理が渡ることは起こりえないが、後続の処理でnullでないことを確約してある必要があるため、実装。
 				router.push("/login");
 				return;
 			}
 
-			// JWT から userId を取得
-			setUserId(JSON.parse(atob(newToken.split(".")[1])).sub);
-
-			triggerFetch();
+			// JWT から userId を取得して、ユーザー取得APIを実行。
+			const userId = getSubjectFromJWT(newToken);
+			await executeFindUserByIdApi(`http://localhost:8080/api/users/${userId}`, 'GET');
 		} catch (err) {
+			// ログインAPI失敗時
+			console.log('ログインAPI - 失敗')
 			console.log(err);
-			setError('ログインに失敗しました。再試行してください。');
 		}
 	};
 
 	useEffect(() => {
-		if (!isLoading && userData) {
-			if (userData.userRole === '管理者') {
-				router.push('/admin/users');
-			} else {
-				router.push('/courses');
-			}
+		// API結果を待ってから画面遷移を行う。
+		if (responseOfFindUserByIdApi) {
+			responseOfFindUserByIdApi.json().then((response: UserDto) => {
+				if (response.userRole === '管理者') {
+					router.push('/admin/users');
+				} else {
+					router.push('/courses');
+				}
+			})
 		}
-	}, [isLoading, userData, router]);
+	}, [responseOfFindUserByIdApi, router]);
 
 	return (
 		<div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -140,10 +115,10 @@ export default function LoginForm() {
 
 				<button
 					type="submit"
-					className="w-full bg-blue-600 text-white border border-blue-600 py-2 rounded-lg hover:bg-blue-900 transition"
-					disabled={isMutating}
+					className="w-full bg-blue-600 text-white border border-blue-600 py-2 rounded-lg hover:bg-blue-900 transition hover:cursor-pointer"
+					disabled={isLoadingLoginApi}
 				>
-					{isMutating ? 'ログイン中...' : 'ログイン'}
+					{isLoadingLoginApi || isLoadingFindUserByIdApi ? 'ログイン中...' : 'ログイン'}
 				</button>
 
 				<div className="text-base mt-5 text-center text-blue-600 hover:underline hover:text-blue-900">
