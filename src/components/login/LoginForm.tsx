@@ -57,7 +57,7 @@ export default function LoginForm() {
 		if (responseOfFindUserByIdApi) {
 			responseOfFindUserByIdApi.json().then((response: UserDto) => {
 				if (response.userRole === '管理者') {
-					router.push('/admin/users');
+					router.push('/admin/courses');
 				} else {
 					router.push('/courses');
 				}
