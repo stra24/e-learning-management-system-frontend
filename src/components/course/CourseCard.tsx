@@ -1,21 +1,31 @@
 import { useRouter } from 'next/navigation';
-import Image from "next/image";
+import Thumbnail from '../Thumbnail';
 
 type CourseCardProps = {
+	courseId: string;
 	imageUrl: string;
 	title: string;
 	progress: number; // 0〜100
 	description: string;
 	isAdmin: boolean;
+	onDelete?: (courseId: string) => void;
 };
 
-export default function CourseCard({ imageUrl, title, progress, description, isAdmin }: CourseCardProps) {
+export default function CourseCard({ courseId, imageUrl, title, progress, description, isAdmin, onDelete }: CourseCardProps) {
 	const router = useRouter();
+
 	const toLessonPage = () => {
 		if (isAdmin) {
-			router.push('/admin/courses/1/lessons/1/edit');
+			router.push(`/admin/courses/${courseId}/edit`);
 		} else {
-			router.push('/courses/1/lessons/1');
+			router.push(`/courses/${courseId}/lessons`);
+		}
+	};
+
+	const handleDelete = async (e: React.MouseEvent) => {
+		e.stopPropagation(); // 親カードクリックを無効化
+		if (onDelete) {
+			onDelete(courseId);
 		}
 	};
 
@@ -29,7 +39,17 @@ export default function CourseCard({ imageUrl, title, progress, description, isA
 
 			{/* サムネイル画像 */}
 			<div className="relative aspect-[16/9] overflow-hidden">
-				<Image src={imageUrl} alt={title} fill className="object-cover transition-transform transform duration-200 group-hover:scale-120" />
+				<Thumbnail thumbnailUrl={imageUrl} alt={title} className="object-cover transition-transform transform duration-200 group-hover:scale-120" />
+
+				{/* 削除ボタン（右上に重ねる） */}
+				{isAdmin && (
+					<button
+						onClick={handleDelete}
+						className="absolute bottom-2 right-2 text-lg bg-red-500 text-white px-4 py-2.5 rounded hover:bg-white hover:text-red-500 hover:cursor-pointer z-20"
+					>
+						削除
+					</button>
+				)}
 			</div>
 
 			{/* 説明概要 */}
@@ -49,8 +69,7 @@ export default function CourseCard({ imageUrl, title, progress, description, isA
 							<div
 								className="h-1 bg-blue-600 rounded-full transition-all duration-300"
 								style={{ width: `${progress}%` }}
-							>
-							</div>
+							/>
 						</div>
 
 						{/* 進捗率表示 */}

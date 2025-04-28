@@ -1,8 +1,47 @@
 "use client";
 import CourseCard from "@/components/course/CourseCard";
+import { useApiRequest } from "@/hooks/useApiRequest";
+import { CourseDto, CoursePageDto } from "@/types/course";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function CourseListForAdmin() {
+	// コースリスト 
+	const [courseDtos, setCourseDtos] = useState<CourseDto[]>([]);
+
+	// コース一覧取得API
+	const {
+		executeApi: executeFindCoursesApi,
+		isLoading: isLoadingFindCoursesApi,
+		isError: isErrorFindCoursesApi
+	} = useApiRequest();
+
+	// コース削除API
+	const {
+		executeApi: executeDeleteCourseApi,
+	} = useApiRequest();
+
+	const deleteCourse = async (courseId: string) => {
+		await executeDeleteCourseApi(`http://localhost:8080/api/courses/${courseId}`, 'DELETE');
+		const findCoursesApiResponse = await executeFindCoursesApi('http://localhost:8080/api/courses', 'GET');
+		findCoursesApiResponse?.json().then((coursePageDto: CoursePageDto) => {
+			setCourseDtos(coursePageDto.courseDtos);
+		})
+	};
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const findCoursesApiResponse = await executeFindCoursesApi('http://localhost:8080/api/courses', 'GET');
+			findCoursesApiResponse?.json().then((coursePageDto: CoursePageDto) => {
+				setCourseDtos(coursePageDto.courseDtos);
+			})
+		}
+		fetchData();
+	}, [executeFindCoursesApi])
+
+	if (isErrorFindCoursesApi) return <div>エラーが発生しました</div>;
+	if (isLoadingFindCoursesApi) return <div>読み込み中...</div>;
+
 	return (
 		<>
 			<div className="max-w-[1100px] mx-auto relative py-18">
@@ -24,41 +63,18 @@ export default function CourseListForAdmin() {
 
 			{/* コースカード一覧 */}
 			<div className="mx-auto grid grid-cols-3 gap-6 w-fit items-start pb-10">
-				<CourseCard
-					imageUrl="/course_thumbnail_sample.png"
-					title="Java入門完全攻略ああああああああああああああああああああああああ"
-					progress={65}
-					description="このコースではJavaの基本からオブジェクト指向、例外処理、Stream APIまで学べます。"
-					isAdmin={true}
-				/>
-				<CourseCard
-					imageUrl="/course_thumbnail_sample.png"
-					title="SQL入門完全攻略"
-					progress={65}
-					description="このコースではSQLの基本を学べます。"
-					isAdmin={true}
-				/>
-				<CourseCard
-					imageUrl="/course_thumbnail_sample.png"
-					title="Git完全攻略"
-					progress={30}
-					description="このコースではGitとGitHubの基礎からチーム開発まで学べます。"
-					isAdmin={true}
-				/>
-				<CourseCard
-					imageUrl="/course_thumbnail_sample.png"
-					title="Spring Boot入門"
-					progress={0}
-					description="このコースではSpring Bootの基本的な使い方を学びます。"
-					isAdmin={true}
-				/>
-				<CourseCard
-					imageUrl="/course_thumbnail_sample.png"
-					title="Docker完全攻略"
-					progress={10}
-					description="このコースではDockerの導入からコンテナ化まで学びます。"
-					isAdmin={true}
-				/>
+				{courseDtos.map((course) => (
+					<CourseCard
+						key={course.id}
+						courseId={course.id}
+						imageUrl={course.thumbnailUrl}
+						title={course.title}
+						description={course.description}
+						progress={65}
+						isAdmin={true}
+						onDelete={deleteCourse}
+					/>
+				))}
 			</div>
 		</>
 	);

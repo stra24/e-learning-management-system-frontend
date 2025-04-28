@@ -94,6 +94,7 @@ export default function Home() {
 				{courseDtos.map((course) => (
 					<CourseCard
 						key={course.id}
+						courseId={course.id}
 						imageUrl="/course_thumbnail_sample.png"
 						title={course.title}
 						description={course.description}

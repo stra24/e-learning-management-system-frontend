@@ -62,7 +62,9 @@ export default function UserList() {
 	useEffect(() => {
 		if (responseOfFindUsersApi) {
 			responseOfFindUsersApi.json().then((response: UserPageDto) => {
-				setTotalPageNum(Math.ceil(response.totalSize / pageSize));
+				setPageSize(response.pageSize);
+				setPageNum(response.pageNum)
+				setTotalPageNum(Math.ceil(response.totalSize / response.pageSize));
 				setUserDtos(response.userDtos);
 			})
 		}
@@ -120,7 +122,7 @@ export default function UserList() {
 									<div className="w-14 h-14 rounded-full overflow-hidden border border-gray-300">
 										{user.thumbnailUrl
 											? (
-												<Thumbnail thumbnailUrl={user.thumbnailUrl} />
+												<Thumbnail thumbnailUrl={user.thumbnailUrl} alt="サムネイル画像" />
 											)
 											:
 											<div></div>

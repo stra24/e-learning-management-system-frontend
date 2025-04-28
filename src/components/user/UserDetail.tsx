@@ -10,24 +10,25 @@ import { getJWTFromCookie, getSubjectFromJWT } from "@/lib/jwtUtil";
 
 export default function UserDetail() {
 	const router = useRouter();
+
 	const paramUserId = useParams().userId; // URL パラメータから userId を取得
 	const pathname = usePathname();
 	const isNewUser = pathname === '/admin/users/new';
 
 	// 画面に表示するState
-	const [realName, setRealName] = useState("");
-	const [userName, setUserName] = useState("");
-	const [emailAddress, setEmailAddress] = useState("");
-	const [thumbnailUrl, setThumbnailUrl] = useState("")
+	const [realName, setRealName] = useState<string>("");
+	const [userName, setUserName] = useState<string>("");
+	const [emailAddress, setEmailAddress] = useState<string>("");
+	const [thumbnailUrl, setThumbnailUrl] = useState<string>("")
 	const [selectedThumbnailFile, setSelectedThumbnailFile] = useState<File | null>(null);
-	const [userRole, setUserRole] = useState("GENERAL")
+	const [userRole, setUserRole] = useState<string>("GENERAL")
 
 	// パスワード関連のState
-	const [password, setPassword] = useState("");
-	const [confirmPassword, setConfirmPassword] = useState("");
+	const [password, setPassword] = useState<string>("");
+	const [confirmPassword, setConfirmPassword] = useState<string>("");
 
 	// モーダルのState
-	const [isPasswordUpdateModalOpen, setIsPasswordUpdateModalOpen] = useState(false);
+	const [isPasswordUpdateModalOpen, setIsPasswordUpdateModalOpen] = useState<boolean>(false);
 
 	// 認証にまつわるState
 	const [userId, setUserId] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export default function UserDetail() {
 				throw new Error('パスワードが一致しません。');
 			}
 
-			let uploadedThumbnailPath = thumbnailUrl; // 初期は今のパス
+			let uploadedThumbnailPath = thumbnailUrl;
 
 			// もし新しいサムネイルが選ばれてたらアップロードする
 			if (selectedThumbnailFile) {
@@ -189,7 +190,7 @@ export default function UserDetail() {
 		}
 	}, [executeRefreshTokenApi, isNewUser, paramUserId, router]);
 
-	// userId がセットされたら（新規画面以外でしかセットされない）、「ユーザー情報取得」と「ユーザー権限のセット」を行う。
+	// userId がセットされたら（新規画面以外でしかセットされない）、ユーザー情報取得を行う。
 	useEffect(() => {
 		if (userId && !isNewUser) {
 			executeFindUserByIdApi(`http://localhost:8080/api/users/${userId}`, 'GET');
@@ -304,7 +305,7 @@ export default function UserDetail() {
 								<div className="w-32 h-32 rounded-full overflow-hidden border border-gray-300">
 									{thumbnailUrl
 										? (
-											<Thumbnail thumbnailUrl={thumbnailUrl} />
+											<Thumbnail thumbnailUrl={thumbnailUrl} alt="サムネイル画像" />
 										)
 										:
 										<div></div>
