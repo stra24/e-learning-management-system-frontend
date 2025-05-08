@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams, usePathname } from 'next/navigation';
-import { UserDto } from "@/types/user";
+import { UserDto } from "@/features/user/types";
 import PasswordUpdateModal from "./PasswordUpdateModal";
-import Thumbnail from "../Thumbnail";
+import Thumbnail from "@/components/Thumbnail";
 import { useApiRequest } from "@/hooks/useApiRequest";
 import { getJWTFromCookie, getSubjectFromJWT } from "@/lib/jwtUtil";
 

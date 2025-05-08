@@ -2,13 +2,13 @@
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useRouter } from 'next/navigation';
 import PageTitle from "@/components/page-title/PageTitle";
-import CourseCard from "@/components/course/CourseCard";
+import CourseCard from '@/features/course/components/CourseCard';
 import Header from "@/components/Header";
 import Link from "next/link";
 import { convertDateString } from '@/lib/dateUtil';
 import { useEffect, useState } from 'react';
-import { NewsDto, NewsPageDto } from '@/types/news';
-import { CourseDto, CoursePageDto } from '@/types/course';
+import { NewsDto, NewsPageDto } from '@/features/news/types';
+import { CourseDto, CoursePageDto } from '@/features/course/types';
 
 export default function Home() {
 	const router = useRouter();
@@ -95,7 +95,7 @@ export default function Home() {
 					<CourseCard
 						key={course.id}
 						courseId={course.id}
-						imageUrl="/course_thumbnail_sample.png"
+						imageUrl={course.thumbnailUrl}
 						title={course.title}
 						description={course.description}
 						progress={65}

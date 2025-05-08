@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import NewsDetailForAdmin from "@/components/news/NewsDetailForAdmin";
+import NewsDetailForAdmin from "@/features/news/components/NewsDetailForAdmin";
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 
 export interface NewsDetailProps {

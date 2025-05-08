@@ -1,5 +1,5 @@
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
-import CourseListForAdmin from "@/components/course/CourseListForAdmin";
+import CourseListForAdmin from "@/features/course/components/CourseListForAdmin";
 import Header from "@/components/Header";
 
 export default function Home() {
@@ -19,4 +19,4 @@ export default function Home() {
 			</div>
 		</div>
 	);
-  }
+}

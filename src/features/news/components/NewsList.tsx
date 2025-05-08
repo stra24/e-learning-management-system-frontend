@@ -2,7 +2,7 @@
 
 import PageTitle from "@/components/page-title/PageTitle";
 import { useRouter } from 'next/navigation';
-import { NewsDto, NewsPageDto } from '@/types/news';
+import { NewsDto, NewsPageDto } from '@/features/news/types';
 import { convertDateString } from '@/lib/dateUtil';
 import { useEffect, useState } from "react";
 import { useApiRequest } from "@/hooks/useApiRequest";

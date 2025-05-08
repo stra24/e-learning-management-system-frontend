@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
-import Thumbnail from "../Thumbnail";
+import Thumbnail from "@/components/Thumbnail";
 import { useApiRequest } from "@/hooks/useApiRequest";
-import { CourseDto } from "@/types/course";
+import { CourseDto } from "@/features/course/types";
 
 export default function CourseDetail() {
 	const router = useRouter();
@@ -159,7 +159,7 @@ export default function CourseDetail() {
 		}
 		fetchData();
 	}, [courseId, executeFindCourseByIdApi, isNewCourse])
-	
+
 	return (
 		<>
 			{/* タイトル */}

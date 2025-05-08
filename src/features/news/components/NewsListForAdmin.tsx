@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { NewsDto, NewsPageDto } from '@/types/news';
+import { NewsDto, NewsPageDto } from '@/features/news/types';
 import { convertDateString } from '@/lib/dateUtil';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useEffect, useState } from 'react';

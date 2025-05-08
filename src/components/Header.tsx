@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { getJWTFromCookie, getSubjectFromJWT } from '@/lib/jwtUtil';
-import { UserDto } from '@/types/user';
+import { UserDto } from '@/features/user/types';
 
 const Header = () => {
 	const router = useRouter();

@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserDto, UserPageDto } from "@/types/user";
+import { UserDto, UserPageDto } from "@/features/user/types";
 import { convertDateTimeString } from "@/lib/dateUtil";
-import Thumbnail from "../Thumbnail";
+import Thumbnail from "@/components/Thumbnail";
 import { useApiRequest } from "@/hooks/useApiRequest";
 
 export default function UserList() {

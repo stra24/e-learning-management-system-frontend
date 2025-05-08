@@ -1,5 +1,5 @@
 import LessonListSidebar from "@/components/sidebar/LessonListSidebar";
-import LessonDetail from "@/components/lesson/LessonDetail";
+import LessonDetail from "@/features/lesson/components/LessonDetail";
 import Header from "@/components/Header";
 
 export default function Home() {
@@ -19,4 +19,4 @@ export default function Home() {
 			</div>
 		</div>
 	);
-  }
+}

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation';
-import Thumbnail from '../Thumbnail';
+import Thumbnail from '@/components/Thumbnail';
 
 type CourseCardProps = {
 	courseId: string;
@@ -18,7 +18,7 @@ export default function CourseCard({ courseId, imageUrl, title, progress, descri
 		if (isAdmin) {
 			router.push(`/admin/courses/${courseId}/edit`);
 		} else {
-			router.push(`/courses/${courseId}/lessons`);
+			router.push(`/courses/${courseId}/lessons/1`);
 		}
 	};
 

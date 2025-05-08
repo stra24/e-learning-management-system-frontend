@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
-import NewsDetail from "@/components/news/NewsDetail";
+import NewsDetail from "@/features/news/components/NewsDetail";
 
-export default function NewsPage() {	
+export default function NewsPage() {
 	return (
 		<>
 			<Header />

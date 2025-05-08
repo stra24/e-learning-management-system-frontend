@@ -1,6 +1,6 @@
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 import Header from "@/components/Header";
-import UserDetail from "@/components/user/UserDetail";
+import UserDetail from "@/features/user/components/UserDetail";
 import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
 
 export default function Home() {
@@ -22,4 +22,4 @@ export default function Home() {
 			</div>
 		</div>
 	);
-  }
+}

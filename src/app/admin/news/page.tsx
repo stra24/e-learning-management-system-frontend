@@ -1,6 +1,6 @@
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 import Header from "@/components/Header";
-import NewsListForAdmin from "@/components/news/NewsListForAdmin";
+import NewsListForAdmin from "@/features/news/components/NewsListForAdmin";
 
 export default function Home() {
 	return (
@@ -19,4 +19,4 @@ export default function Home() {
 			</div>
 		</div>
 	);
-  }
+}
