@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { getJWTFromCookie, getSubjectFromJWT } from '@/lib/jwtUtil';
-import { UserDto } from '@/types/user';
+import { UserDto } from '@/features/user/types';
 
 export default function LoginForm() {
 	const router = useRouter();

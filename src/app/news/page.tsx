@@ -1,11 +1,11 @@
 import Header from '@/components/Header';
-import NewsList from '@/components/news/NewsList';
+import NewsList from '@/features/news/components/NewsList';
 
 export default function NewsPage() {
-  return (
-	<>
-		<Header />
-		<NewsList />
-	</>
-  );
+	return (
+		<>
+			<Header />
+			<NewsList />
+		</>
+	);
 }

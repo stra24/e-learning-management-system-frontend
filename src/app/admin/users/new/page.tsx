@@ -1,7 +1,7 @@
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 import Header from "@/components/Header";
 import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
-import UserDetail from "@/components/user/UserDetail";
+import UserDetail from "@/features/user/components/UserDetail";
 
 export default function Home() {
 	return (
@@ -22,4 +22,4 @@ export default function Home() {
 			</div>
 		</div>
 	);
-  }
+}

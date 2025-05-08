@@ -1,7 +1,7 @@
 "use client";
-import CourseCard from "@/components/course/CourseCard";
+import CourseCard from "./CourseCard";
 import { useApiRequest } from "@/hooks/useApiRequest";
-import { CourseDto, CoursePageDto } from "@/types/course";
+import { CourseDto, CoursePageDto } from "@/features/course/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

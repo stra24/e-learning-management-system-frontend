@@ -1,20 +1,20 @@
-import { Noto_Sans_JP  } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 
 const notoSansJp = Noto_Sans_JP({
-  subsets: ["latin"],
+	subsets: ["latin"],
 });
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="ja">
-      <body className={notoSansJp.className}>
-        {children}
-      </body>
-    </html>
-  );
+	return (
+		<html lang="ja">
+			<body className={notoSansJp.className}>
+				{children}
+			</body>
+		</html>
+	);
 }

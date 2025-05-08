@@ -2,7 +2,7 @@
 
 import SidebarForAdmin from "@/components/sidebar/SidebarForAdmin";
 import Header from "@/components/Header";
-import UserList from "@/components/user/UserList";
+import UserList from "@/features/user/components/UserList";
 
 export default function Home() {
 	return (
