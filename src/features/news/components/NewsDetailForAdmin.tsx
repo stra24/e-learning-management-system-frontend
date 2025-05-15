@@ -2,6 +2,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
+import { useApiRequest } from "@/hooks/useApiRequest";
 
 interface NewsDetailProps {
 	newsId?: string;
@@ -52,9 +53,10 @@ export default function NewsDetail(props: NewsDetailProps) {
 		router.push("/admin/news");
 	};
 
-	const handleDelete = () => {
+const handleDelete =async (newsId: String) => {
 		if (confirm("本当に削除しますか？")) {
 			// 削除API呼び出し予定
+			await executeDeleteNewsApi(`http://localhost:8080/api/news/${newsId}`, 'DELETE');
 			router.push("/admin/news");
 		}
 	};
