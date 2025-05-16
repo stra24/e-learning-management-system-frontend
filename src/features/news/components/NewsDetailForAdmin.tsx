@@ -13,6 +13,13 @@ interface NewsDetailProps {
 export default function NewsDetail(props: NewsDetailProps) {
 	const router = useRouter();
 
+// newsの削除を取得するAPI
+const {
+  executeApi: executeDeleteNewsApi,
+  } = useApiRequest();
+
+
+
 	// 仮の初期データ（後でAPI連携可能）
 	const initialNewsMap: Record<string, { date: string; title: string; content: string }> = {
 		"1": {
@@ -57,6 +64,7 @@ const handleDelete =async (newsId: String) => {
 		if (confirm("本当に削除しますか？")) {
 			// 削除API呼び出し予定
 			await executeDeleteNewsApi(`http://localhost:8080/api/news/${newsId}`, 'DELETE');
+			await executeFindNewsApi('http://localhost:8080/api/news/', 'GET');
 			router.push("/admin/news");
 		}
 	};
