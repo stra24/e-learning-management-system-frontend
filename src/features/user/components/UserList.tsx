@@ -68,7 +68,7 @@ export default function UserList() {
 				setUserDtos(response.userDtos);
 			})
 		}
-	}, [pageSize, responseOfFindUsersApi]);
+	}, [responseOfFindUsersApi]);
 
 
 	if (isErrorFindUsersApi) return <div>エラーが発生しました</div>;
