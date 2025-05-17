@@ -9,6 +9,18 @@ import { useEffect, useState } from 'react';
 export default function NewsList() {
 	const router = useRouter();
 
+  // 1ページで表示する件数
+	const [pageSize, setPageSize] = useState(10);
+
+	// ページ番号
+	const [pageNum, setPageNum] = useState(1);
+
+	// 合計ページ数
+	const [totalPageNum, setTotalPageNum] = useState(1);
+
+// 	削除時に作動するトリガー
+  const [updateTrigger, setUpdateTrigger] = useState(0);
+
 	// お知らせリスト 
 	const [newsDtos, setNewsDtos] = useState<NewsDto[]>([]);
 
@@ -16,15 +28,25 @@ export default function NewsList() {
 	const {
 		executeApi: executeFindNewsApi,
 		isLoading: isLoadingFindNewsApi,
-		isError: isErrorFindNewsApi
+		isError: isErrorFindNewsApi,
+		response: responseOfFindNewsApi
 	} = useApiRequest();
+
+// お知らせ削除API
+const {
+  executeApi: executeDeleteNewsApi,
+  } =useApiRequest();
 
 	const toNewsDetailPage = (newsId: string) => {
 		router.push("/admin/news/" + newsId + "/edit");
 	};
 
-	const handleDelete = (newsId: string) => {
+// 削除ボタンを押すと発火するイベント
+	const handleDelete = async (e: React.MouseEvent, newsId: string) => {
 		console.log(`ニュースID ${newsId} を削除します`);
+		e.stopPropagation();
+	  await executeDeleteNewsApi(`http://localhost:8080/api/news/${newsId}`, 'DELETE');
+    await executeFindNewsApi('http://localhost:8080/api/news', 'GET');
 	};
 
 	useEffect(() => {
@@ -36,6 +58,20 @@ export default function NewsList() {
 		}
 		fetchData();
 	}, [executeFindNewsApi])
+
+
+// 削除処理した時に発動
+useEffect(() => {
+  if(responseOfFindNewsApi) {
+    responseOfFindNewsApi.json().then((response: NewsPageDto) => {
+      setPageSize(response.pageSize);
+      setPageNum(response.pageNum);
+      setTotalPageNum(Math.ceil(response.totalSize / response.pageSize));
+      				setNewsDtos(response.newsDtos);
+      })
+    }
+    }, [responseOfFindNewsApi]);
+
 
 	if (isErrorFindNewsApi) return <div>エラーが発生しました</div>;
 	if (isLoadingFindNewsApi) return <div>読み込み中...</div>;
@@ -77,7 +113,7 @@ export default function NewsList() {
 						</div>
 
 						<button
-							onClick={() => handleDelete(newsDto.id)}
+							onClick={(e) => handleDelete(e, newsDto.id)}
 							className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition cursor-pointer"
 						>
 							削除
@@ -88,3 +124,4 @@ export default function NewsList() {
 		</div>
 	);
 }
+
