@@ -29,6 +29,11 @@ export default function NewsList() {
     response: responseOfFindNewsApi,
   } = useApiRequest();
 
+  //お知らせ詳細画面遷移
+  const toNewsDetailView = (id: String) => {
+    router.push(`/admin/news/${id}/edit`);
+  };
+
   // お知らせ削除API
   const { executeApi: executeDeleteNewsApi } = useApiRequest();
 
