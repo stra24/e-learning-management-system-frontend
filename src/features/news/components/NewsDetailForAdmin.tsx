@@ -20,43 +20,10 @@ export default function NewsDetail(props: NewsDetailProps) {
   // newsの削除を取得するAPI
   const { executeApi: executeDeleteNewsApi } = useApiRequest();
 
-  // 仮の初期データ（後でAPI連携可能）
-  //   const initialNewsMap: Record<
-  //     string,
-  //     { date: string; title: string; content: string }
-  //   > = {
-  //     "1": {
-  //       date: "2025-01-01",
-  //       title: "大事なお知らせ①",
-  //       content:
-  //         "新年あけましておめでとうございます。今年もよろしくお願いします。",
-  //     },
-  //     "2": {
-  //       date: "2025-01-02",
-  //       title: "大事なお知らせ②",
-  //       content: "新機能のリリース予定についてのお知らせです。",
-  //     },
-  //     "3": {
-  //       date: "2025-01-03",
-  //       title: "大事なお知らせ③",
-  //       content:
-  //         "メンテナンスのお知らせです。1月5日にサーバーメンテナンスを行います。",
-  //     },
-  //   };
-
-  //   画面に表示するstate
+  // 画面に表示するstate
   const [date, setDate] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-
-  //   const news = initialNewsMap[props.newsId as string];
-  //   useEffect(() => {
-  //     if (news) {
-  //       setDate(news.date);
-  //       setTitle(news.title);
-  //       setContent(news.content);
-  //     }
-  //   }, [news]);
 
   const handleUpdate = () => {
     // 本来はAPIを呼んで保存する処理
@@ -78,7 +45,7 @@ export default function NewsDetail(props: NewsDetailProps) {
     isError: isErrorFindNewsByIdApi,
   } = useApiRequest();
 
-  //   レスポンスを取得？？
+  // レスポンスを取得？？
   useEffect(() => {
     if (newsId) {
       console.log("API呼び出しを開始:", newsId);
@@ -86,7 +53,7 @@ export default function NewsDetail(props: NewsDetailProps) {
     }
   }, [executeFindNewsByIdApi, newsId]);
 
-  //   レスポンスからそれぞれのデータをセットする
+  // レスポンスからそれぞれのデータをセットする
   useEffect(() => {
     if (!responseOfFindNewsByIdApi) {
       console.log("レスポンスがありませんでした");
