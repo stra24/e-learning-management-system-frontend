@@ -3,6 +3,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import MultiColumnPageTitle from "@/components/page-title/MultiColumnPageTitle";
 import { useApiRequest } from "@/hooks/useApiRequest";
+import { NewsDto } from "../types";
 
 interface NewsDetailProps {
   newsId?: string;
@@ -13,45 +14,16 @@ interface NewsDetailProps {
 export default function NewsDetail(props: NewsDetailProps) {
   const router = useRouter();
 
+  // URLパラメータからnewsIdを取得する
+  const newsId = useParams().newsId;
+
   // newsの削除を取得するAPI
   const { executeApi: executeDeleteNewsApi } = useApiRequest();
 
-  // 仮の初期データ（後でAPI連携可能）
-  const initialNewsMap: Record<
-    string,
-    { date: string; title: string; content: string }
-  > = {
-    "1": {
-      date: "2025-01-01",
-      title: "大事なお知らせ①",
-      content:
-        "新年あけましておめでとうございます。今年もよろしくお願いします。",
-    },
-    "2": {
-      date: "2025-01-02",
-      title: "大事なお知らせ②",
-      content: "新機能のリリース予定についてのお知らせです。",
-    },
-    "3": {
-      date: "2025-01-03",
-      title: "大事なお知らせ③",
-      content:
-        "メンテナンスのお知らせです。1月5日にサーバーメンテナンスを行います。",
-    },
-  };
-
+  // 画面に表示するstate
   const [date, setDate] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-
-  const news = initialNewsMap[props.newsId as string];
-  useEffect(() => {
-    if (news) {
-      setDate(news.date);
-      setTitle(news.title);
-      setContent(news.content);
-    }
-  }, [news]);
 
   const handleUpdate = () => {
     // 本来はAPIを呼んで保存する処理
@@ -65,7 +37,38 @@ export default function NewsDetail(props: NewsDetailProps) {
     }
   };
 
-  if (!props.isNew && !news) {
+  // お知らせ取得API
+  const {
+    executeApi: executeFindNewsByIdApi,
+    isLoading: isLoadingFindNewaByIdApi,
+    response: responseOfFindNewsByIdApi,
+    isError: isErrorFindNewsByIdApi,
+  } = useApiRequest();
+
+  // レスポンスを取得？？
+  useEffect(() => {
+    if (newsId) {
+      console.log("API呼び出しを開始:", newsId);
+      executeFindNewsByIdApi(`http://localhost:8080/api/news/${newsId}`, "GET");
+    }
+  }, [executeFindNewsByIdApi, newsId]);
+
+  // レスポンスからそれぞれのデータをセットする
+  useEffect(() => {
+    if (!responseOfFindNewsByIdApi) {
+      console.log("レスポンスがありませんでした");
+      return;
+    }
+    responseOfFindNewsByIdApi.json().then((newsDto: NewsDto) => {
+      console.log("json 変換成功", newsDto);
+      setTitle(newsDto.title);
+      setContent(newsDto.content);
+      setDate(newsDto.createdAt);
+      console.log(newsDto.title);
+    });
+  }, [responseOfFindNewsByIdApi, newsId]);
+
+  if (!props.isNew && !responseOfFindNewsByIdApi) {
     return (
       <>
         <MultiColumnPageTitle title="お知らせ詳細" />
