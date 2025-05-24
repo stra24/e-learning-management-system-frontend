@@ -15,7 +15,7 @@ export default function NewsDetail(props: NewsDetailProps) {
   const router = useRouter();
 
   // URLパラメータからnewsIdを取得する
-  const newsId = useParams().newsId;
+  const newsId = props.newsId;
 
   // newsの削除を取得するAPI
   const { executeApi: executeDeleteNewsApi } = useApiRequest();
@@ -30,9 +30,14 @@ export default function NewsDetail(props: NewsDetailProps) {
     router.push("/admin/news");
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
     if (confirm("本当に削除しますか？")) {
       // 削除API呼び出し予定
+      e.stopPropagation();
+      await executeDeleteNewsApi(
+        `http://localhost:8080/api/news/${newsId}`,
+        "DELETE"
+      );
       router.push("/admin/news");
     }
   };
@@ -45,7 +50,7 @@ export default function NewsDetail(props: NewsDetailProps) {
     isError: isErrorFindNewsByIdApi,
   } = useApiRequest();
 
-  // レスポンスを取得？？
+  // バックエンドサイドへリクエストを送信する
   useEffect(() => {
     if (newsId) {
       console.log("API呼び出しを開始:", newsId);
